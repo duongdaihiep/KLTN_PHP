@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.calendar-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.past-day {
+    background-color: #d3d3d3; /* Màu xám cho ngày đã qua */
+    color: #666;
+}
+
+.current-day {
+    background-color: #28a745; /* Màu xanh lá cho ngày hiện tại */
+    color: white;
+}
+
+.future-day {
+    background-color: #007bff; /* Màu xanh blue cho ngày tương lai */
+    color: white;
+}
+
+td {
+    cursor: pointer;
+}
+
+td:hover {
+    background-color: #d1e7dd; /* Hiệu ứng hover */
+}
