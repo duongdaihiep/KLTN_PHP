@@ -12,6 +12,9 @@ footer {
     bottom: 0;
     width: 100%;
 }
+.content-section{
+    min-height: 400px;
+}
 /* Khung camera */
 /* Phần khung chứa camera và nút chấm công */
 .container-camera {

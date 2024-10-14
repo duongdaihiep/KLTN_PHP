@@ -58,13 +58,65 @@
             </div>
         </section>
         
-        
+        <!-- Theo Dõi Chấm Công -->
+        <section id="attendance" class="content-section d-none">
+            <h2>Theo Dõi Chấm Công</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-success">
+                        <tr>
+                            <th scope="col">Ngày</th>
+                            <th scope="col">Giờ vào</th>
+                            <th scope="col">Giờ ra</th>
+                            <th scope="col">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Thêm dữ liệu chấm công ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
 
 
         <!-- Xem Bảng Lương -->
         <section id="payroll" class="content-section d-none">
-            <h2>Xem Bảng Lương</h2>
-            <p>Thông tin lương của bạn sẽ được hiển thị ở đây.</p>
+            <h2 class="text-center mt-4">Bảng Lương</h2>
+            <table class="table table-bordered payroll-table">
+                <thead class="table-success">
+                    <tr>
+                        <th scope="col">Thông Tin</th>
+                        <th scope="col">Giá Trị Thông Tin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mã Nhân Viên</td>
+                        <td>NV001</td>
+                    </tr>
+                    <tr>
+                        <td>Lương Cơ Bản</td>
+                        <td>10,000,000 VNĐ</td>
+                    </tr>
+                    <tr>
+                        <td>Thưởng</td>
+                        <td>1,000,000 VNĐ</td>
+                    </tr>
+                    <tr>
+                        <td>Đã Ứng</td>
+                        <td>500,000 VNĐ</td>
+                    </tr>
+                    <tr>
+                        <td>Còn Lại</td>
+                        <td>10,500,000 VNĐ</td>
+                    </tr>
+                    <tr>
+                        <td>Ngày Trả Lương</td>
+                        <td>15/10/2024</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
         <!-- Xin Nghỉ Phép -->
@@ -107,118 +159,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Script to handle section display -->
-    <script>
-        function showSection(sectionId) {
-            // Ẩn tất cả các phần nội dung
-            document.querySelectorAll('.content-section').forEach(function(section) {
-                section.classList.add('d-none');
-            });
-
-            // Hiển thị phần được chọn
-            document.getElementById(sectionId).classList.remove('d-none');
-        }
-
-        function showSection(sectionId) {
-            // Ẩn tất cả các phần nội dung
-            document.querySelectorAll('.content-section').forEach(function(section) {
-                section.classList.add('d-none');
-            });
-
-            // Hiển thị phần được chọn
-            document.getElementById(sectionId).classList.remove('d-none');
-
-            // Xóa class 'active' từ tất cả các liên kết nav-item
-            document.querySelectorAll('.nav-link').forEach(function(navLink) {
-                navLink.classList.remove('active');
-            });
-
-            // Thêm class 'active' cho liên kết được chọn
-            const activeLink = document.querySelector(`a[onclick="showSection('${sectionId}')"]`);
-            activeLink.classList.add('active');
-        }
-
-
-        // Hàm truy cập camera (ưu tiên camera trước)
-        function startCamera() {
-            const video = document.getElementById('video');
-
-            // Yêu cầu quyền truy cập vào camera trước
-            const constraints = {
-                video: {
-                    facingMode: "user" // "user" cho camera trước, "environment" cho camera sau
-                }
-            };
-
-            // Truy cập camera với điều kiện là camera trước
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then(stream => {
-                    video.srcObject = stream;
-                })
-                .catch(err => {
-                    console.error('Lỗi khi truy cập camera: ', err);
-                    alert('Không thể truy cập camera.');
-                });
-        }
-
-        // Hàm dừng camera
-        function stopCamera() {
-            const video = document.getElementById('video');
-            const stream = video.srcObject;
-            const tracks = stream.getTracks();
-
-            // Dừng tất cả các track của stream
-            tracks.forEach(track => track.stop());
-            video.srcObject = null;
-        }
-
-        // Bắt đầu camera khi trang được tải
-        document.addEventListener('DOMContentLoaded', startCamera);
-
-
-
-        function chamCong() {
-            // Lấy thời gian hiện tại
-            const now = new Date();
-            const timestamp = now.toLocaleString(); // Định dạng thời gian thành chuỗi
-
-            // Hiển thị thời gian chấm công
-            document.getElementById('timestamp').textContent = timestamp;
-
-            // Lấy vị trí hiện tại của thiết bị
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                document.getElementById('location').textContent = "Trình duyệt của bạn không hỗ trợ định vị.";
-            }
-        }
-
-        function showPosition(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
-
-            // Hiển thị tọa độ GPS
-            document.getElementById('location').textContent = `Vĩ độ: ${latitude}, Kinh độ: ${longitude} (Độ chính xác: ${accuracy}m)`;
-        }
-
-        function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    document.getElementById('location').textContent = "Người dùng đã từ chối yêu cầu định vị.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    document.getElementById('location').textContent = "Thông tin vị trí không khả dụng.";
-                    break;
-                case error.TIMEOUT:
-                    document.getElementById('location').textContent = "Yêu cầu lấy vị trí đã hết thời gian.";
-                    break;
-                case error.UNKNOWN_ERROR:
-                    document.getElementById('location').textContent = "Lỗi không xác định khi lấy vị trí.";
-                    break;
-            }
-        }
-
-
-    </script>
+    <script src="./Script/index.js"></script>
 </body>
 </html>
