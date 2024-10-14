@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+/* Khung camera */
+/* Phần khung chứa camera và nút chấm công */
+.container-camera {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Chiều cao toàn bộ để căn giữa */
+}
+
+/* Khung camera */
+.camera-container {
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+    background-color: #ddd;
+    border: 2px solid #28a745;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* Khoảng cách dưới khung camera để nút không chạm vào */
+}
+
+/* Nút chấm công */
+.btn-cham-cong {
+    width: 100%;
+    max-width: 200px;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 18px;
+}
+
+.btn-cham-cong:hover {
+    background-color: #218838;
+}
