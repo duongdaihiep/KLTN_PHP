@@ -1,46 +1,40 @@
 <?php
-// Kết nối đến MySQL
-$servername = "localhost";
-$username = "root"; // Tên người dùng MySQL
-$password = ""; // Mật khẩu MySQL
-$dbname = "EmployeeAttendanceSystem"; // Tên cơ sở dữ liệu
+session_start();
+include 'db.php'; // Tệp kết nối đến cơ sở dữ liệu
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Nhận dữ liệu từ form đăng nhập
+$username = $_POST['username'];
+$password = $_POST['password'];
 
-// Kiểm tra kết nối
-if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
-}
-
-// Lấy dữ liệu từ form đăng nhập
-$usernameInput = $_POST['username'];
-$passwordInput = $_POST['password'];
-
-// Mã hóa mật khẩu nhập vào để so sánh
-$passwordHash = md5($passwordInput); // Sử dụng MD5 (hoặc bạn có thể thay bằng hàm mã hóa khác như bcrypt)
-
-// Truy vấn cơ sở dữ liệu để kiểm tra thông tin người dùng
-$sql = "SELECT * FROM User WHERE Username = $usernameInput AND PasswordHash = $passwordHash";
+// Truy vấn tìm người dùng theo username (email hoặc số điện thoại)
+$sql = "SELECT * FROM User WHERE Username = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $usernameInput, $passwordHash);
+$stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Kiểm tra nếu thông tin đăng nhập đúng
+// Kiểm tra nếu tìm thấy tài khoản
 if ($result->num_rows > 0) {
-    // Đăng nhập thành công, chuyển hướng đến trang index.php
-    session_start();
-    $user = $result->fetch_assoc();
-    $_SESSION['username'] = $user['Username'];
-    $_SESSION['role'] = $user['Role']; // Gán quyền của người dùng (nếu có)
-    header("Location: index.php"); // Chuyển hướng tới trang chính
-    exit();
+    $row = $result->fetch_assoc();
+    
+    // Lấy mật khẩu đã mã hóa từ CSDL
+    $hashedPassword = $row['PasswordHash'];
+
+    // Sử dụng password_verify để so sánh mật khẩu nhập và mật khẩu đã mã hóa
+    if (password_verify($password, $hashedPassword)) {
+        // Mật khẩu đúng, đăng nhập thành công
+        $_SESSION['username'] = $username;
+        header('Location: index.php'); // Chuyển hướng đến trang index.php
+        exit();
+    } else {
+        // Mật khẩu sai
+        echo "Mật khẩu không chính xác!";
+    }
 } else {
-    // Đăng nhập thất bại, hiển thị thông báo
-    echo "<script>alert('Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.'); window.location.href='login.php';</script>";
+    // Không tìm thấy người dùng
+    echo "Tài khoản không tồn tại!";
 }
 
-// Đóng kết nối
 $stmt->close();
 $conn->close();
 ?>
