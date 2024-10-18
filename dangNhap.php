@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Nhập</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./CSS/dangNhap.css"> <!-- Liên kết đến file CSS -->
 </head>
@@ -15,8 +14,8 @@
     <h3 class="text-center">Đăng Nhập</h3>
     <form action="login_process.php" method="post">
         <div class="mb-4">
-            <label for="email" class="form-label">Email hoặc Số Điện Thoại</label>
-            <input type="text" class="form-control" id="email" name="username" placeholder="Nhập email hoặc số điện thoại" required>
+            <label for="username" class="form-label">Email hoặc Số Điện Thoại</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Nhập email hoặc số điện thoại" required>
         </div>
         <div class="mb-4">
             <label for="password" class="form-label">Mật Khẩu</label>
