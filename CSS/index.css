@@ -30,8 +30,8 @@ footer {
     width: 100%;
     max-width: 400px;
     height: 400px;
-    background-color: #ddd;
-    border: 2px solid #28a745;
+    background-color: #007bff;
+    border: 2px solid #007bff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,7 +42,7 @@ footer {
 .btn-cham-cong {
     width: 100%;
     max-width: 200px;
-    background-color: #28a745;
+    background-color: #007bff;
     color: white;
     text-align: center;
     border-radius: 5px;
@@ -51,5 +51,8 @@ footer {
 }
 
 .btn-cham-cong:hover {
-    background-color: #218838;
+    background-color: #007bff;
+}
+.bg-success{
+    background-color: #007bff !important; 
 }

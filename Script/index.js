@@ -1,12 +1,4 @@
-function showSection(sectionId) {
-    // Ẩn tất cả các phần nội dung
-    document.querySelectorAll('.content-section').forEach(function(section) {
-        section.classList.add('d-none');
-    });
 
-    // Hiển thị phần được chọn
-    document.getElementById(sectionId).classList.remove('d-none');
-}
 // Hàm hiển thị các phần nội dung
 function showSection(sectionId) {
     // Ẩn tất cả các phần nội dung
