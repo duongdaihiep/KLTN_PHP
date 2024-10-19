@@ -12,7 +12,7 @@
 <div class="login-container">
     <h1>Attendance</h1>
     <h3 class="text-center">Đăng Nhập</h3>
-    <form action="login_process.php" method="post">
+    <form action="./PHP/login_process.php" method="post">
         <div class="mb-4">
             <label for="username" class="form-label">Email hoặc Số Điện Thoại</label>
             <input type="text" class="form-control" id="username" name="username" placeholder="Nhập email hoặc số điện thoại" required>
