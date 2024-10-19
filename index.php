@@ -2,9 +2,11 @@
 session_start();
 if (!isset($_SESSION['username'])) {
     // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
-    header("Location: login.php");
+    header("Location: dangNhap.php");
     exit();
 }
+include './PHP/dungChung.php'; // Đường dẫn đến file chứa hàm checkUserRole
+checkUserRole('index.php');
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +44,11 @@ if (!isset($_SESSION['username'])) {
                         <a class="nav-link" href="#" onclick="showSection('leave')">Xin Nghỉ Phép</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showSection('leave')">Đăng Xuất</a>
+                        <form action="./PHP/logout.php" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-link nav-link" style="border: none; background: none; padding: 0;">
+                                Đăng Xuất
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>

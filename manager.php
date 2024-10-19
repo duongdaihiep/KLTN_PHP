@@ -1,3 +1,13 @@
+<?php
+session_start();
+if (!isset($_SESSION['username'])) {
+    // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+    header("Location: dangNhap.php");
+    exit();
+}
+include './PHP/dungChung.php'; // Đường dẫn đến file chứa hàm checkUserRole
+checkUserRole('manager.php');
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -33,7 +43,11 @@
                         <a class="nav-link" href="#" onclick="showSection('overtimeApproval')">Duyệt Đăng Ký Tăng Ca</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showSection('logout')">Đăng Xuất</a>
+                        <form action="./PHP/logout.php" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-link nav-link" style="border: none; background: none; padding: 0;">
+                                Đăng Xuất
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>
