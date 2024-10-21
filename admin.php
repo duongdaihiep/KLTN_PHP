@@ -70,7 +70,7 @@ checkUserRole('admin.php');
             </form>
 
             <!-- Bảng hiển thị lịch sử chấm công -->
-            <table class="table mt-4">
+            <table class="table mt-4" id="attendanceTable">
                 <thead>
                     <tr>
                         <th>Attendance ID</th>
@@ -80,48 +80,47 @@ checkUserRole('admin.php');
                         <th>Giờ Ra</th>
                         <th>Trạng Thái Vào</th>
                         <th>Trạng Thái Ra</th>
-                        <th>Sửa chấm công</th>
+                        <th>Chỉnh sửa</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    // Kết nối đến cơ sở dữ liệu
-                    include './PHP/db.php'; // Tệp kết nối đến cơ sở dữ liệu
+                <?php
+                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
+                    $employeeId = $_POST['employeeId'];
 
-                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        $employeeId = $_POST['employeeId'];
+                    // Truy vấn lấy lịch sử chấm công của nhân viên
+                    $sql = "SELECT attendanceID, EmployeeID, date, checkintime, checkouttime, 
+                            statuscheckin, statuscheckout 
+                            FROM attendance 
+                            WHERE EmployeeID = '$employeeId'";
+                    include './PHP/db.php';
+                    $result = mysql_query($sql, $conn);
 
-                        // Truy vấn lấy lịch sử chấm công của nhân viên
-                        $sql = "SELECT attendanceID, EmployeeID, date, checkintime, checkouttime, 
-                                statuscheckin, statuscheckout, imageIN, imageOUT, locationIN, locationOUT 
-                                FROM attendance 
-                                WHERE EmployeeID = '$employeeId'";
-
-                        $result = mysql_query($sql, $conn);
-                        
-                        // Kiểm tra và hiển thị dữ liệu
-                        if ($result && mysql_num_rows($result) > 0) {
-                            while ($row = mysql_fetch_assoc($result)) {
-                                echo "<tr>
-                                        <td>{$row['attendanceID']}</td>
-                                        <td>{$row['EmployeeID']}</td>
-                                        <td>{$row['date']}</td>
-                                        <td>{$row['checkintime']}</td>  
-                                        <td>{$row['checkouttime']}</td>
-                                        <td>{$row['statuscheckin']}</td>
-                                        <td>{$row['statuscheckout']}</td>
-                                        <td><a href='./PHP/editAttendance.php?attendanceID={$row['attendanceID']}' class='btn btn-primary'>Sửa</a></td>
-                                    </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='11'>Không có dữ liệu cho nhân viên này.</td></tr>";
+                    // Kiểm tra và hiển thị dữ liệu
+                    if ($result && mysql_num_rows($result) > 0) {
+                        while ($row = mysql_fetch_assoc($result)) {
+                            echo "<tr data-attendance-id='{$row['attendanceID']}'>
+                                    <td><span class='attendanceID'>{$row['attendanceID']}</span></td>
+                                    <td><span class='employeeID'>{$row['EmployeeID']}</span></td>
+                                    <td><span class='date'>{$row['date']}</span></td>
+                                    <td><span class='checkIn'>{$row['checkintime']}</span></td>
+                                    <td><span class='checkOut'>{$row['checkouttime']}</span></td>
+                                    <td><span class='statusCheckIn'>{$row['statuscheckin']}</span></td>
+                                    <td><span class='statusCheckOut'>{$row['statuscheckout']}</span></td>
+                                    <td>
+                                        <button class='btn btn-primary editBtn'>Sửa</button>
+                                        <button class='btn btn-success saveBtn' style='display:none;'>Lưu</button>
+                                    </td>
+                                </tr>";
                         }
+                    } else {
+                        echo "<tr><td colspan='8'>Không có dữ liệu cho nhân viên này.</td></tr>";
                     }
-
-                    // Đóng kết nối
                     mysql_close($conn);
-                    ?>
-                </tbody>
+                }
+                ?>
+            </tbody>
+
             </table>
         </section>
 

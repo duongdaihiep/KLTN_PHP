@@ -19,7 +19,7 @@ nav.navbar {
 }
 
 nav .nav-link {
-    color: #fff;
+    color: #fff !important;
     font-weight: 500;
 }
 
@@ -119,7 +119,7 @@ footer {
 .navbar-nav .nav-link {
     display: inline-block; /* Đảm bảo nút nằm thẳng hàng */
     padding: 0.5rem 1rem; /* Padding giống như các nút khác */
-    color: #007bff; /* Màu chữ */
+    color: #fff; /* Màu chữ */
     text-decoration: none; /* Không gạch chân */
 }
 
