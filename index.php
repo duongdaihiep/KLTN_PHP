@@ -1,13 +1,30 @@
 <?php
 session_start();
 if (!isset($_SESSION['username'])) {
-    // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
     header("Location: dangNhap.php");
     exit();
 }
-include './PHP/dungChung.php'; // Đường dẫn đến file chứa hàm checkUserRole
+
+include './PHP/db.php'; // Đường dẫn tới file db.php chứa kết nối tới database
+include './PHP/dungChung.php';
 checkUserRole('index.php');
+
+// Lấy `EmployeeID` từ bảng `users` dựa trên `Username` trong session
+$username = mysql_real_escape_string($_SESSION['username']); // Xử lý đặc biệt ký tự để tránh lỗi SQL injection
+$query = "SELECT EmployeeID FROM user WHERE Username = '$username'";
+$result = mysql_query($query);
+
+if (!$result) {
+    die("Lỗi truy vấn SQL: " . mysql_error()); // Thông báo lỗi SQL nếu có
+}
+
+if ($row = mysql_fetch_assoc($result)) {
+    $employeeID = $row['EmployeeID'];
+} else {
+    die("Không tìm thấy EmployeeID.");
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -59,48 +76,59 @@ checkUserRole('index.php');
         <!-- Chấm Công (Home) -->
         <section id="home" class="content-section">
             <div class="container-camera">
-                <!-- Khung hình camera -->
                 <h3>Camera Chấm Công</h3>
                 <div class="camera-container">
                     <video id="video" width="100%" autoplay></video>
                 </div>
-        
-                <!-- Nút chấm công -->
                 <button class="btn btn-success btn-cham-cong" onclick="chamCong()">Chấm Công</button>
-        
-                <!-- Khu vực hiển thị ngày giờ và vị trí -->
                 <div id="info" class="mt-3">
                     <p><strong>Thời gian chấm công:</strong> <span id="timestamp"></span></p>
                     <p><strong>Vị trí:</strong> <span id="location"></span></p>
                 </div>
             </div>
         </section>
-        
+
         <!-- Theo Dõi Chấm Công -->
         <section id="attendance" class="content-section d-none">
             <h2>Theo Dõi Chấm Công</h2>
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-success">
-                        <tr>
-                            <th scope="col">Ngày</th>
-                            <th scope="col">Giờ vào</th>
-                            <th scope="col">Giờ ra</th>
-                            <th scope="col">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Thêm dữ liệu chấm công ở đây -->
-                    </tbody>
-                </table>
+            <table class="table table-bordered table-striped">
+                <thead class="table-success">
+                    <tr>
+                        <th scope="col">Ngày</th>
+                        <th scope="col">Giờ vào</th>
+                        <th scope="col">Trạng thái giờ vào</th>
+                        <th scope="col">Giờ ra</th>
+                        <th scope="col">Trạng thái giờ ra</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+                // Truy vấn dữ liệu chấm công dựa trên EmployeeID
+                $attendanceQuery = "SELECT Date, CheckInTime, StatusCheckIn, CheckOutTime, StatusCheckOut 
+                                    FROM attendance WHERE EmployeeID = '$employeeID'";
+                $attendanceResult = mysql_query($attendanceQuery);
+                $workingDays = 0;
+                while ($row = mysql_fetch_assoc($attendanceResult)) { 
+                    $workingDays++;
+                    ?>
+                    <tr>
+                        <td><?php echo $row['Date']; ?></td>
+                        <td><?php echo $row['CheckInTime']; ?></td>
+                        <td><?php echo $row['StatusCheckIn']; ?></td>
+                        <td><?php echo $row['CheckOutTime']; ?></td>
+                        <td><?php echo $row['StatusCheckOut']; ?></td>
+                    </tr>
+                <?php } ?>
+                </tbody>
+            </table>
+
             </div>
         </section>
 
-
-
         <!-- Xem Bảng Lương -->
-        <section id="payroll" class="content-section d-none">
-            <h2 class="text-center mt-4">Bảng Lương</h2>
+        <section id="payroll" class="content-section mt-5">
+            <h2 class="text-center mt-4">Bảng Lương Tạm Tính</h2>
             <table class="table table-bordered payroll-table">
                 <thead class="table-success">
                     <tr>
@@ -109,38 +137,87 @@ checkUserRole('index.php');
                     </tr>
                 </thead>
                 <tbody>
+                <?php
+                // Truy vấn dữ liệu bảng lương
+                $salaryQuery = "SELECT BasicSalary, Bonus, AdvanceSalary, NetSalary, PayDate 
+                                FROM salaries WHERE EmployeeID = '$employeeID'";
+                $salaryResult = mysql_query($salaryQuery);
+                // Kiểm tra xem truy vấn có thành công hay không
+                if (!$salaryResult) {
+                    die("Truy vấn bảng lương thất bại: " . mysql_error());
+                }
+
+                // Lấy dữ liệu lương
+                $salaryData = mysql_fetch_assoc($salaryResult);
+                $currentMonth = date('m'); // Lấy tháng
+                $currentYear = date('Y');  // Lấy năm
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
+                $totalSalary = ($salaryData['BasicSalary'] /$daysInMonth) * $workingDays;
+                echo $totalSalary;
+                
+
+                // Nếu không tìm thấy dữ liệu
+                if (!$salaryData) {
+                    echo "Không tìm thấy dữ liệu lương cho nhân viên có mã: " . $employeeID;
+                }
+                ?>
+
                     <tr>
                         <td>Mã Nhân Viên</td>
-                        <td>NV001</td>
+                        <td><?php echo $employeeID; ?></td>
+                    </tr>
+                    <tr>
+                        <td>Ngày Công</td>
+                        <td><?php echo $workingDays.'/'.$daysInMonth;  ?></td>
                     </tr>
                     <tr>
                         <td>Lương Cơ Bản</td>
-                        <td>10,000,000 VNĐ</td>
+                        <td><?php echo number_format($totalSalary, 0, ',', '.') ,"/",number_format($salaryData['BasicSalary'], 0, ',', '.') . ' VNĐ'; ?></td>
                     </tr>
                     <tr>
                         <td>Thưởng</td>
-                        <td>1,000,000 VNĐ</td>
+                        <td><?php echo number_format($salaryData['Bonus'], 0, ',', '.') . ' VNĐ'; ?></td>
                     </tr>
                     <tr>
                         <td>Đã Ứng</td>
-                        <td>500,000 VNĐ</td>
+                        <td><?php echo number_format($salaryData['AdvanceSalary'], 0, ',', '.') . ' VNĐ'; ?></td>
                     </tr>
                     <tr>
                         <td>Còn Lại</td>
-                        <td>10,500,000 VNĐ</td>
+                        <td><?php echo number_format($totalSalary+$salaryData['Bonus']-$salaryData['AdvanceSalary'], 0, ',', '.') . ' VNĐ'; ?></td>
                     </tr>
                     <tr>
+                        <?php
+                        
+                        
+                        // Tính tháng và năm tiếp theo
+                        if ($currentMonth == 12) {
+                            $nextMonth = 1; // Tháng 1
+                            $nextYear = $currentYear + 1; // Năm tiếp theo
+                        } else {
+                            $nextMonth = $currentMonth + 1; // Tháng tiếp theo
+                            $nextYear = $currentYear; // Năm hiện tại
+                        }
+                        ?>
                         <td>Ngày Trả Lương</td>
-                        <td>15/10/2024</td>
+                        <td><?php echo "5/", $nextMonth, "/", $nextYear; ?></td>
                     </tr>
+
                 </tbody>
             </table>
         </section>
 
+
+
         <!-- Xin Nghỉ Phép -->
         <section id="leave" class="content-section d-none">
             <h2>Xin Nghỉ Phép</h2>
-            <form>
+            <form id="leaveRequestForm" method="POST" action="./PHP/process_leave_request.php">
+                <div class="mb-3">
+                    <label for="leaveType" class="form-label">Mã nhân Viên:</label>
+                    <input name="employeeID" name="employeeID" class="form-control" required value="<?php echo $employeeID; ?>" readonly>
+                </div>    
+            
                 <div class="mb-3">
                     <label for="leaveType" class="form-label">Loại nghỉ phép:</label>
                     <select id="leaveType" name="leaveType" class="form-select">
@@ -148,25 +225,45 @@ checkUserRole('index.php');
                         <option value="phepnam">Nghỉ phép năm</option>
                     </select>
                 </div>
-
                 <div class="mb-3">
                     <label for="startDate" class="form-label">Ngày bắt đầu:</label>
-                    <input type="date" id="startDate" name="startDate" class="form-control">
+                    <input type="date" id="startDate" name="startDate" class="form-control" required>
                 </div>
-
                 <div class="mb-3">
                     <label for="endDate" class="form-label">Ngày kết thúc:</label>
-                    <input type="date" id="endDate" name="endDate" class="form-control">
+                    <input type="date" id="endDate" name="endDate" class="form-control" required>
                 </div>
-
                 <div class="mb-3">
                     <label for="reason" class="form-label">Lý do:</label>
-                    <textarea id="reason" name="reason" rows="4" class="form-control"></textarea>
+                    <textarea id="reason" name="reason" rows="4" class="form-control" required></textarea>
                 </div>
-
                 <button type="submit" class="btn btn-success">Gửi Yêu Cầu</button>
             </form>
         </section>
+
+        <script>
+        // Ràng buộc dữ liệu nhập vào bằng JavaScript
+        document.getElementById('leaveRequestForm').addEventListener('submit', function(e) {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const today = new Date();
+
+            // Kiểm tra nếu ngày bắt đầu hoặc ngày kết thúc là trong quá khứ
+            if (startDate < today || endDate < today) {
+                alert("Ngày tháng nhập vào không hợp lệ!");
+                e.preventDefault(); // Ngăn không cho gửi form
+                return;
+            }
+
+            // Kiểm tra nếu ngày kết thúc trước ngày bắt đầu
+            if (endDate < startDate) {
+                alert("Ngày kết thúc không được phép trước ngày bắt đầu!");
+                e.preventDefault(); // Ngăn không cho gửi form
+                return;
+            }
+        });
+        </script>
+
     </div>
 
     <footer class="bg-success text-white text-center py-3 mt-5">
@@ -175,8 +272,6 @@ checkUserRole('index.php');
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Script to handle section display -->
     <script src="./Script/index.js"></script>
 </body>
 </html>

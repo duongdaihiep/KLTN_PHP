@@ -1,14 +1,12 @@
 <?php
 // Thông tin kết nối MySQL
-$servername = "localhost";   // Tên máy chủ MySQL (localhost nếu chạy trên máy cục bộ)
-$username = "duong";          // Tên đăng nhập MySQL (thường là 'root' cho máy cục bộ)
-$password = "123456";              // Mật khẩu MySQL (để trống nếu không có mật khẩu)
-$dbname = "kltn"; // Tên cơ sở dữ liệu bạn đã tạo
+$servername = "localhost";   // Tên máy chủ MySQL
+$username = "duong";         // Tên đăng nhập MySQL
+$password = "123456";        // Mật khẩu MySQL
+$dbname = "kltn";            // Tên cơ sở dữ liệu
 
-// Tạo kết nối MySQL
+// Kết nối MySQL
 $conn = mysql_connect($servername, $username, $password);
-
-// Kiểm tra kết nối
 if (!$conn) {
     die("Kết nối thất bại: " . mysql_error());
 }
