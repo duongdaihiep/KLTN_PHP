@@ -73,20 +73,40 @@ if ($row = mysql_fetch_assoc($result)) {
     </nav>
 
     <div class="container mt-5">
-        <!-- Chấm Công (Home) -->
         <section id="home" class="content-section">
             <div class="container-camera">
                 <h3>Camera Chấm Công</h3>
                 <div class="camera-container">
                     <video id="video" width="100%" autoplay></video>
+                    <!-- Nơi hiển thị hình ảnh chấm công -->
+                    <div id="imagePreview" class="mt-3" style="display: none;">
+                        <img id="capturedImage" src="" alt="Captured Image" width="100%">
+                    </div>
                 </div>
-                <button class="btn btn-success btn-cham-cong" onclick="chamCong()">Chấm Công</button>
+
+                <!-- Thêm tùy chọn Check In / Check Out -->
+                <div class="form-group mt-3">
+                    <label>Loại chấm công:</label><br>
+                    <div class="radio-container">
+                        <input type="radio" id="checkIn" name="checkType" value="Vào" checked>
+                        <label for="checkIn" class="radio-label">Vào</label>
+
+                        <input type="radio" id="checkOut" name="checkType" value="Ra">
+                        <label for="checkOut" class="radio-label">Ra</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-cham-cong mt-3" onclick="chamCong()">Chấm Công</button>
+
                 <div id="info" class="mt-3">
                     <p><strong>Thời gian chấm công:</strong> <span id="timestamp"></span></p>
                     <p><strong>Vị trí:</strong> <span id="location"></span></p>
                 </div>
             </div>
         </section>
+
+
+
 
         <!-- Theo Dõi Chấm Công -->
         <section id="attendance" class="content-section d-none">

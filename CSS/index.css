@@ -56,3 +56,40 @@ footer {
 .bg-success{
     background-color: #007bff !important; 
 }
+
+.radio-container {
+    display: flex;
+    gap: 0px; /* No gap between the buttons */
+    justify-content: center;
+    width: 100%; /* Make sure the container spans full width */
+}
+
+input[type="radio"] {
+    display: none; /* Hide the original radio buttons */
+
+}
+
+.radio-label {
+    display: inline-block;
+    padding: 10px 50px;
+    margin-left: 12px;
+    background-color: #fff; /* Default background */
+    border: 2px solid #007bff; /* Border color (blue outline) */
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%; /* Ensures both buttons have equal width */
+    box-sizing: border-box; /* Ensures padding and border are included in the width */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* When the radio is checked */
+input[type="radio"]:checked + .radio-label {
+    background-color: #007bff; /* Background color when checked */
+    color: white; /* Text color when checked */
+}
+
+/* For the second button to have a border on the left side */
+.radio-label:first-of-type {
+    border-right: none;
+}

@@ -1,4 +1,3 @@
-
 // Hàm hiển thị các phần nội dung
 function showSection(sectionId) {
     // Ẩn tất cả các phần nội dung
@@ -26,7 +25,6 @@ function showSection(sectionId) {
 document.addEventListener('DOMContentLoaded', () => {
     showSection('home'); // Mặc định hiển thị phần trang chủ
 });
-
 
 // Hàm truy cập camera (ưu tiên camera trước)
 function startCamera() {
@@ -61,27 +59,76 @@ function stopCamera() {
     video.srcObject = null;
 }
 
-// Bắt đầu camera khi trang được tải
-document.addEventListener('DOMContentLoaded', startCamera);
+const video = document.getElementById('video');
+const imagePreview = document.getElementById('imagePreview');
+const capturedImage = document.getElementById('capturedImage');
+const timestampElement = document.getElementById('timestamp');
+const locationElement = document.getElementById('location');
 
-
+// Khởi tạo camera
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        console.error("Error accessing the camera: ", err);
+    });
 
 function chamCong() {
-    // Lấy thời gian hiện tại
-    const now = new Date();
-    const timestamp = now.toLocaleString(); // Định dạng thời gian thành chuỗi
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Chuyển đổi hình ảnh thành dữ liệu URL
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // Hiển thị hình ảnh chấm công
+    capturedImage.src = dataURL;
+    imagePreview.style.display = 'block';
+    video.style.display = 'none'; // Ẩn camera
 
-    // Hiển thị thời gian chấm công
-    document.getElementById('timestamp').textContent = timestamp;
+    // Định dạng thời gian
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false // Nếu bạn muốn dùng 24 giờ
+    });
 
-    // Lấy vị trí hiện tại của thiết bị
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
-    } else {
-        document.getElementById('location').textContent = "Trình duyệt của bạn không hỗ trợ định vị.";
-    }
+    timestampElement.textContent = formattedDate; // Cập nhật thời gian
+    locationElement.textContent = document.getElementById('location').textContent; // Cập nhật vị trí từ showPosition
+
+
+    // Gửi hình ảnh đến server (PHP hoặc Node.js)
+    fetch('PHP/save_image.php', {
+        method: 'POST',
+        body: JSON.stringify({ 
+            employeeID: 'YOUR_EMPLOYEE_ID', // Thay 'YOUR_EMPLOYEE_ID' bằng ID thực tế của nhân viên
+            timestamp: formattedDate,
+            image: dataURL 
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    
+    .then(response => response.json())
+    .then(data => {
+        console.log('Image uploaded successfully:', data);
+    })
+    .catch((error) => {
+        console.error('Error uploading image:', error);
+    });
 }
 
+
+// Hàm hiển thị vị trí hiện tại của người dùng
 function showPosition(position) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
@@ -91,6 +138,7 @@ function showPosition(position) {
     document.getElementById('location').textContent = `Vĩ độ: ${latitude}, Kinh độ: ${longitude} (Độ chính xác: ${accuracy}m)`;
 }
 
+// Hàm hiển thị lỗi khi không thể lấy được vị trí
 function showError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
@@ -107,3 +155,60 @@ function showError(error) {
             break;
     }
 }
+
+// Hàm chụp ảnh từ camera
+function captureImage() {
+    const video = document.getElementById('video');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Vẽ khung hình hiện tại của video lên canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Lấy dữ liệu hình ảnh dưới dạng base64
+    const imageData = canvas.toDataURL('image/png');
+
+    // Hiển thị hình ảnh vừa chụp
+    document.getElementById('capturedImage').src = imageData;
+
+    // Dừng camera sau khi chụp
+    stopCamera();
+
+    return imageData; // Trả về dữ liệu hình ảnh
+}
+
+// Hàm gửi dữ liệu chấm công đến backend
+function sendAttendance() {
+    const imageData = captureImage(); // Dữ liệu hình ảnh từ hàm chụp ảnh
+    const checkType = document.querySelector('input[name="checkType"]:checked').value; // Loại chấm công (Vào/Ra)
+
+    // Gửi dữ liệu hình ảnh và loại chấm công đến server
+    fetch('process_attendance.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            image: imageData,
+            checkType: checkType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Chấm công thành công!");
+            document.getElementById('timestamp').innerText = data.timestamp; // Hiển thị thời gian chấm công
+            document.getElementById('location').innerText = data.location; // Hiển thị vị trí
+        } else {
+            alert("Chấm công thất bại: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi khi chấm công:', error);
+    });
+}
+
+// Bắt đầu camera khi trang được tải
+document.addEventListener('DOMContentLoaded', startCamera);
