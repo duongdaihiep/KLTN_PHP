@@ -17,6 +17,7 @@ checkUserRole('admin.php');
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./CSS/adminStyle.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header class="bg-primary text-white text-center py-3">
@@ -77,73 +78,143 @@ checkUserRole('admin.php');
                         <th>Employee ID</th>
                         <th>Ngày</th>
                         <th>Giờ Vào</th>
-                        <th>Giờ Ra</th>
                         <th>Trạng Thái Vào</th>
+                        <th>Giờ Ra</th>
                         <th>Trạng Thái Ra</th>
                         <th>Chỉnh sửa</th>
                     </tr>
                 </thead>
                 <tbody>
-                <?php
-                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
-                    $employeeId = $_POST['employeeId'];
+                    <?php
+                    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
+                        $employeeId = $_POST['employeeId'];
 
-                    // Truy vấn lấy lịch sử chấm công của nhân viên
-                    $sql = "SELECT attendanceID, EmployeeID, date, checkintime, checkouttime, 
-                            statuscheckin, statuscheckout 
-                            FROM attendance 
-                            WHERE EmployeeID = '$employeeId'";
-                    include './PHP/db.php';
-                    $result = mysql_query($sql, $conn);
+                        // Truy vấn lấy lịch sử chấm công của nhân viên
+                        $sql = "SELECT attendanceID, EmployeeID, date, checkintime, checkouttime, 
+                                statuscheckin, statuscheckout 
+                                FROM attendance 
+                                WHERE EmployeeID = '$employeeId'";
+                        include './PHP/db.php';
+                        $result = mysql_query($sql, $conn);
 
-                    // Kiểm tra và hiển thị dữ liệu
-                    if ($result && mysql_num_rows($result) > 0) {
-                        while ($row = mysql_fetch_assoc($result)) {
-                            echo "<tr data-attendance-id='{$row['attendanceID']}'>
-                                    <td><span class='attendanceID'>{$row['attendanceID']}</span></td>
-                                    <td><span class='employeeID'>{$row['EmployeeID']}</span></td>
-                                    <td><span class='date'>{$row['date']}</span></td>
-                                    <td><span class='checkIn'>{$row['checkintime']}</span></td>
-                                    <td><span class='checkOut'>{$row['checkouttime']}</span></td>
-                                    <td><span class='statusCheckIn'>{$row['statuscheckin']}</span></td>
-                                    <td><span class='statusCheckOut'>{$row['statuscheckout']}</span></td>
-                                    <td>
-                                        <button class='btn btn-primary editBtn'>Sửa</button>
-                                        <button class='btn btn-success saveBtn' style='display:none;'>Lưu</button>
-                                    </td>
-                                </tr>";
+                        // Kiểm tra và hiển thị dữ liệu
+                        if ($result && mysql_num_rows($result) > 0) {
+                            while ($row = mysql_fetch_assoc($result)) {
+                                echo "<tr data-attendance-id='{$row['attendanceID']}'>
+                                        <td><span class='attendanceID'>{$row['attendanceID']}</span></td>
+                                        <td><span class='employeeID'>{$row['EmployeeID']}</span></td>
+                                        <td><span class='date'>{$row['date']}</span></td>
+                                        <td><span class='checkIn'>{$row['checkintime']}</span></td>
+                                        
+                                        <!-- Dropdown cho trạng thái vào -->
+                                        <td>
+                                            <span class='statusCheckIn'>{$row['statuscheckin']}</span>
+                                            <button class='btn btn-secondary dropdown-toggle' type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></button>
+                                            <div class='dropdown-menu'>
+                                                <a class='dropdown-item' href='#' data-value='late'>Late</a>
+                                                <a class='dropdown-item' href='#' data-value='soon'>Soon</a>
+                                                <a class='dropdown-item' href='#' data-value='approved'>Approved</a>
+                                            </div>
+                                        </td>
+                                        
+                                        <td><span class='checkOut'>{$row['checkouttime']}</span></td>
+                                        
+                                        <!-- Dropdown cho trạng thái ra -->
+                                        <td>
+                                            <span class='statusCheckOut'>{$row['statuscheckout']}</span>
+                                            <button class='btn btn-secondary dropdown-toggle' type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></button>
+                                            <div class='dropdown-menu'>
+                                                <a class='dropdown-item' href='#' data-value='late'>Late</a>
+                                                <a class='dropdown-item' href='#' data-value='soon'>Soon</a>
+                                                <a class='dropdown-item' href='#' data-value='approved'>Approved</a>
+                                            </div>
+                                        </td>
+                                        
+                                        <td>
+                                            <button class='btn btn-success saveBtn'>Lưu</button>
+                                        </td>
+                                    </tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='8'>Không có dữ liệu cho nhân viên này.</td></tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='8'>Không có dữ liệu cho nhân viên này.</td></tr>";
+                        mysql_close($conn);
                     }
-                    mysql_close($conn);
-                }
-                ?>
-            </tbody>
-
+                    ?>
+                </tbody>
             </table>
+
+
         </section>
 
 
         <!-- Sửa Thông Tin Nhân Viên -->
         <section id="editEmployeeInfo" class="content-section d-none">
             <h2>Sửa Thông Tin Nhân Viên</h2>
-            <form>
+            <form method="POST" action="">
                 <div class="mb-3">
                     <label for="employeeIdInfo" class="form-label">Mã Nhân Viên</label>
-                    <input type="text" id="employeeIdInfo" name="employeeIdInfo" class="form-control">
+                    <input type="text" id="employeeIdInfo" name="employeeIdInfo" class="form-control" required>
                 </div>
-                <div class="mb-3">
-                    <label for="employeeName" class="form-label">Tên Nhân Viên</label>
-                    <input type="text" id="employeeName" name="employeeName" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="employeePosition" class="form-label">Chức Vụ</label>
-                    <input type="text" id="employeePosition" name="employeePosition" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                <button type="submit" class="btn btn-primary">Tìm Kiếm</button>
             </form>
+
+            <!-- Hiển thị thông tin nhân viên -->
+            <?php
+            if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeIdInfo']) && !empty($_POST['employeeIdInfo'])) {
+                $employeeId = $_POST['employeeIdInfo'];
+
+                // Truy vấn lấy thông tin nhân viên
+                $sql = "SELECT EmployeeID, FirstName, LastName, Email, Phone, Position, HireDate, DepartmentID 
+                        FROM employees 
+                        WHERE EmployeeID = '$employeeId'";
+                include './PHP/db.php'; // Kết nối cơ sở dữ liệu
+                $result = mysql_query($sql, $conn);
+
+                // Kiểm tra và hiển thị dữ liệu
+                if ($result && mysql_num_rows($result) > 0) {
+                    $row = mysql_fetch_assoc($result);
+                    echo '<form method="POST" action="updateEmployee.php">'; // Đường dẫn đến file xử lý cập nhật
+                    echo "<div class='mb-3'>
+                            <label for='firstName' class='form-label'>Tên</label>
+                            <input type='text' id='firstName' name='firstName' class='form-control' value='{$row['FirstName']}' required>
+                        </div>";
+                    echo "<div class='mb-3'>
+                            <label for='lastName' class='form-label'>Họ</label>
+                            <input type='text' id='lastName' name='lastName' class='form-control' value='{$row['LastName']}' required>
+                        </div>";
+                    echo "<div class='mb-3'>
+                            <label for='email' class='form-label'>Email</label>
+                            <input type='email' id='email' name='email' class='form-control' value='{$row['Email']}'>
+                        </div>";
+                    echo "<div class='mb-3'>
+                            <label for='phone' class='form-label'>Điện Thoại</label>
+                            <input type='text' id='phone' name='phone' class='form-control' value='{$row['Phone']}'>
+                        </div>";
+                    echo "<div class='mb-3'>
+                            <label for='position' class='form-label'>Chức Vụ</label>
+                            <input type='text' id='position' name='position' class='form-control' value='{$row['Position']}'>
+                        </div>";
+                    echo "<div class='mb-3'>
+                            <label for='hireDate' class='form-label'>Ngày Tuyển Dụng</label>
+                            <input type='date' id='hireDate' name='hireDate' class='form-control' value='{$row['HireDate']}'>
+                        </div>";
+                    echo "<div class='mb-3'>
+                            <label for='departmentId' class='form-label'>Mã Phòng Ban</label>
+                            <input type='text' id='departmentId' name='departmentId' class='form-control' value='{$row['DepartmentID']}'>
+                        </div>";
+                    echo "<input type='hidden' name='employeeId' value='{$row['EmployeeID']}'>"; // Để gửi lại mã nhân viên
+                    echo "<button type='submit' class='btn btn-success'>Cập Nhật Thông Tin</button>";
+                    echo '</form>';
+                } else {
+                    echo "<p class='text-danger'>Không tìm thấy nhân viên với mã này.</p>";
+                }
+                mysql_close($conn);
+            }
+            ?>
         </section>
+
+
 
         <!-- Đăng Ký Tài Khoản Nhân Viên -->
         <section id="registerEmployee" class="content-section d-none">

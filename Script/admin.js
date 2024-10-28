@@ -108,3 +108,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+// Hàm để hiển thị các section
+function showSection(sectionId) {
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => {
+        section.classList.add('d-none'); // Ẩn tất cả các section
+    });
+    document.getElementById(sectionId).classList.remove('d-none'); // Hiện section được chọn
+}
+
+// Đảm bảo khi tải trang, section mặc định là "editAttendance"
+document.addEventListener('DOMContentLoaded', function () {
+    showSection('editAttendance'); // Thay đổi đây nếu bạn muốn hiển thị tab khác khi tải trang
+});
+
+
+
+// $(document).ready(function() {
+//     // Xử lý khi người dùng chọn trạng thái từ dropdown
+//     $('#attendanceTable').on('click', '.dropdown-item', function() {
+//         var selectedStatus = $(this).text(); // Lấy giá trị đã chọn
+//         var statusCell = $(this).closest('tr').find('.statusCheckIn'); // Tìm ô trạng thái
+//         statusCell.text(selectedStatus); // Cập nhật ô trạng thái
+//     });
+// });
+
