@@ -169,58 +169,7 @@ checkUserRole('admin.php');
             </form>
 
             <!-- Hiển thị thông tin nhân viên -->
-            <?php
-            if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeIdInfo']) && !empty($_POST['employeeIdInfo'])) {
-                $employeeId = $_POST['employeeIdInfo'];
-
-                // Truy vấn lấy thông tin nhân viên
-                $sql = "SELECT EmployeeID, FirstName, LastName, Email, Phone, Position, HireDate, DepartmentID 
-                        FROM employees 
-                        WHERE EmployeeID = '$employeeId'";
-                include './PHP/db.php'; // Kết nối cơ sở dữ liệu
-                $result = mysql_query($sql, $conn);
-
-                // Kiểm tra và hiển thị dữ liệu
-                if ($result && mysql_num_rows($result) > 0) {
-                    $row = mysql_fetch_assoc($result);
-                    echo '<form method="POST" action="updateEmployee.php">'; // Đường dẫn đến file xử lý cập nhật
-                    echo "<div class='mb-3'>
-                            <label for='firstName' class='form-label'>Tên</label>
-                            <input type='text' id='firstName' name='firstName' class='form-control' value='{$row['FirstName']}' required>
-                        </div>";
-                    echo "<div class='mb-3'>
-                            <label for='lastName' class='form-label'>Họ</label>
-                            <input type='text' id='lastName' name='lastName' class='form-control' value='{$row['LastName']}' required>
-                        </div>";
-                    echo "<div class='mb-3'>
-                            <label for='email' class='form-label'>Email</label>
-                            <input type='email' id='email' name='email' class='form-control' value='{$row['Email']}'>
-                        </div>";
-                    echo "<div class='mb-3'>
-                            <label for='phone' class='form-label'>Điện Thoại</label>
-                            <input type='text' id='phone' name='phone' class='form-control' value='{$row['Phone']}'>
-                        </div>";
-                    echo "<div class='mb-3'>
-                            <label for='position' class='form-label'>Chức Vụ</label>
-                            <input type='text' id='position' name='position' class='form-control' value='{$row['Position']}'>
-                        </div>";
-                    echo "<div class='mb-3'>
-                            <label for='hireDate' class='form-label'>Ngày Tuyển Dụng</label>
-                            <input type='date' id='hireDate' name='hireDate' class='form-control' value='{$row['HireDate']}'>
-                        </div>";
-                    echo "<div class='mb-3'>
-                            <label for='departmentId' class='form-label'>Mã Phòng Ban</label>
-                            <input type='text' id='departmentId' name='departmentId' class='form-control' value='{$row['DepartmentID']}'>
-                        </div>";
-                    echo "<input type='hidden' name='employeeId' value='{$row['EmployeeID']}'>"; // Để gửi lại mã nhân viên
-                    echo "<button type='submit' class='btn btn-success'>Cập Nhật Thông Tin</button>";
-                    echo '</form>';
-                } else {
-                    echo "<p class='text-danger'>Không tìm thấy nhân viên với mã này.</p>";
-                }
-                mysql_close($conn);
-            }
-            ?>
+            
         </section>
 
 
@@ -254,6 +203,14 @@ checkUserRole('admin.php');
                     <input type="text" id="employeePosition" name="employeePosition" class="form-control">
                 </div>
                 <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select id="role" name="role" class="form-select">
+                        <option value="staff">Staff</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label for="hireDate" class="form-label">Ngày Tuyển Dụng</label>
                     <input type="date" id="hireDate" name="hireDate" class="form-control" required>
                 </div>
@@ -270,14 +227,14 @@ checkUserRole('admin.php');
         <!-- Xóa/Khóa Tài Khoản Nhân Viên -->
         <section id="manageEmployeeAccount" class="content-section d-none">
             <h2>Xóa/Khóa Tài Khoản Nhân Viên</h2>
-            <form>
+            <form action="./PHP/manageEmployee.php" method="POST">
                 <div class="mb-3">
                     <label for="employeeIdManage" class="form-label">Mã Nhân Viên</label>
-                    <input type="text" id="employeeIdManage" name="employeeIdManage" class="form-control">
+                    <input type="text" id="employeeIdManage" name="employeeIdManage" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label for="action" class="form-label">Hành Động</label>
-                    <select id="action" name="action" class="form-select">
+                    <select id="action" name="action" class="form-select" required>
                         <option value="delete">Xóa Tài Khoản</option>
                         <option value="lock">Khóa Tài Khoản</option>
                     </select>
@@ -286,6 +243,7 @@ checkUserRole('admin.php');
             </form>
         </section>
 
+
         <!-- Đăng Xuất -->
         <section id="logout" class="content-section d-none">
             <h2>Đăng Xuất</h2>
@@ -293,7 +251,19 @@ checkUserRole('admin.php');
             <button class="btn btn-warning">Đăng Xuất</button>
         </section>
     </div>
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
+        // Sử dụng json_encode để đảm bảo nội dung là an toàn cho JavaScript
+        echo "<script>
+                alert(" . json_encode($_POST['status']) . ");
+            </script>";
+    }
+    ?>
 
+
+
+
+<!-- <script>alert('$_POST[]')</script> -->
     <footer class="bg-primary text-white text-center py-3 mt-5">
         <p>&copy; 2024 Hệ Thống Chấm Công</p>
     </footer>

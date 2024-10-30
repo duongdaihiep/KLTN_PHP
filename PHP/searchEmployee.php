@@ -42,10 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for='hireDate' class='form-label'>Ngày Tuyển Dụng</label>
                     <input type='date' id='hireDate' name='hireDate' class='form-control' value='{$row['HireDate']}'>
                   </div>";
-            echo "<div class='mb-3'>
-                    <label for='departmentId' class='form-label'>Mã Phòng Ban</label>
-                    <input type='text' id='departmentId' name='departmentId' class='form-control' value='{$row['DepartmentID']}'>
-                  </div>";
             echo "<input type='hidden' name='employeeId' value='{$row['EmployeeID']}'>"; // Để gửi lại mã nhân viên
             echo "<button type='submit' name='updateEmployee' class='btn btn-success'>Cập Nhật Thông Tin</button>";
             echo '</form>';
@@ -65,21 +61,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $updateSql = "UPDATE employees 
                       SET FirstName = '$firstName', LastName = '$lastName', Email = '$email', 
-                          Phone = '$phone', Position = '$position', HireDate = '$hireDate', 
-                          DepartmentID = $departmentId 
+                          Phone = '$phone', Position = '$position', HireDate = '$hireDate'
                       WHERE EmployeeID = $employeeId";
         
         if (mysql_query($updateSql, $conn)) {
-            echo "<script>
-                    alert('Thông tin nhân viên đã được cập nhật thành công!');
-                    window.location.href = 'http://localhost:8080/KLTN_20029511/admin.php#';
-                  </script>";
+            echo "<form id='redirectForm' action='../admin.php' method='POST'>
+            <input type='hidden' name='status' value='Thông tin nhân viên đã được cập nhật thành công!'>
+          </form>
+          <script>
+            document.getElementById('redirectForm').submit();
+          </script>";
         } else {
-            echo "<script>
-                    alert('Lỗi khi cập nhật thông tin nhân viên, vui lòng kiểm tra lại!');
-                    window.location.href = 'http://localhost:8080/KLTN_20029511/admin.php#';
-                  </script>";
-        }
+            echo "<form id='redirectForm' action='../admin.php' method='POST'>
+            <input type='hidden' name='status' value='Lỗi khi cập nhật thông tin nhân viên!'>
+          </form>
+          <script>
+            document.getElementById('redirectForm').submit();
+          </script>";
         
     }
 

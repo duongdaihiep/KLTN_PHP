@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 session_start();
 include 'db.php'; // Tệp kết nối đến cơ sở dữ liệu
 
@@ -26,22 +27,37 @@ if ($result && mysql_num_rows($result) > 0) {
         // Mật khẩu đúng, đăng nhập thành công
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $row['Role']; // Lưu role vào session
-        
-        // Kiểm tra role của người dùng
-        if ($row['Role'] == 'admin') {
-            // Chuyển hướng đến trang admin.php
-            header('Location: ../admin.php');
-        } elseif ($row['Role'] == 'staff') {
-            // Chuyển hướng đến trang index.php
-            header('Location: ../index.php');
-        } elseif ($row['Role'] == 'manager') {
-            // Chuyển hướng đến trang manager.php
-            header('Location: ../manager.php');
-        } else {
-            // Nếu role không hợp lệ, có thể điều hướng về trang đăng nhập
-            header('Location: ../dangNhap.php');
+        if ($row['Status'] == 'Lock') {
+            session_destroy();
+            // echo "<script>alert('Tài khoản đã bị khóa!')</script>";
+            // header('Location: ../dangNhap.php');
+            echo "<script>
+                alert('Tài khoản đã bị khóa!');
+                setTimeout(function() {
+                    window.location.href = '../dangNhap.php';
+                }, 5000); // Thời gian chờ 5 giây
+            </script>";
+
+
+        }else{
+            // Kiểm tra role của người dùng
+            if ($row['Role'] == 'admin') {
+                // Chuyển hướng đến trang admin.php
+                header('Location: ../admin.php');
+            } elseif ($row['Role'] == 'staff') {
+                // Chuyển hướng đến trang index.php
+                header('Location: ../index.php');
+            } elseif ($row['Role'] == 'manager') {
+                // Chuyển hướng đến trang manager.php
+                header('Location: ../manager.php');
+            } else {
+                // Nếu role không hợp lệ, có thể điều hướng về trang đăng nhập
+                header('Location: ../dangNhap.php');
+            }
+            exit();
+
         }
-        exit();
+        
     } else {
         // Mật khẩu sai, quay lại trang đăng nhập
         echo "<script>alert('Mật khẩu không chính xác!')</script>";

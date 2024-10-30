@@ -285,7 +285,12 @@ if ($row = mysql_fetch_assoc($result)) {
         </script>
 
     </div>
-
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
+        echo "<script>alert(" . json_encode($_POST['status']) . ");</script>";
+        location.reload();
+    }
+    ?>
     <footer class="bg-success text-white text-center py-3 mt-5">
         <p>&copy; 2024 Hệ Thống Chấm Công</p>
     </footer>

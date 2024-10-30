@@ -24,7 +24,12 @@
         <button type="submit" class="btn login-btn w-100">Đăng Nhập</button>
     </form>
 </div>
-
+<?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
+        echo "<script>alert(" . json_encode($_POST['status']) . ");</script>";
+        location.reload();
+    }
+?>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

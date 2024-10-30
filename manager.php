@@ -143,7 +143,12 @@ checkUserRole('manager.php');
             <button class="btn btn-warning">Đăng Xuất</button>
         </section>
     </div>
-
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
+        echo "<script>alert(" . json_encode($_POST['status']) . ");</script>";
+        location.reload();
+    }
+    ?>
     <footer class="bg-primary text-white text-center py-3 mt-5">
         <p>&copy; 2024 Hệ Thống Chấm Công</p>
     </footer>
