@@ -44,13 +44,14 @@ if ($result && mysql_num_rows($result) > 0) {
         exit();
     } else {
         // Mật khẩu sai, quay lại trang đăng nhập
+        echo "<script>alert('Mật khẩu không chính xác!')</script>";
         header('Location: ../dangNhap.php');
         exit();
     }
     
 } else {
     // Không tìm thấy người dùng
-    echo "Tài khoản không tồn tại!";
+    echo "<script>alert('Tài khoản không tồn tại!')</script>";
 }
 
 mysql_close($conn);

@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 session_start();
 if (!isset($_SESSION['username'])) {
     // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
@@ -72,19 +73,7 @@ checkUserRole('admin.php');
 
             <!-- Bảng hiển thị lịch sử chấm công -->
             <table class="table mt-4" id="attendanceTable">
-                <thead>
-                    <tr>
-                        <th>Attendance ID</th>
-                        <th>Employee ID</th>
-                        <th>Ngày</th>
-                        <th>Giờ Vào</th>
-                        <th>Trạng Thái Vào</th>
-                        <th>Giờ Ra</th>
-                        <th>Trạng Thái Ra</th>
-                        <th>Chỉnh sửa</th>
-                    </tr>
-                </thead>
-                <tbody>
+                
                     <?php
                     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
                         $employeeId = $_POST['employeeId'];
@@ -96,6 +85,20 @@ checkUserRole('admin.php');
                                 WHERE EmployeeID = '$employeeId'";
                         include './PHP/db.php';
                         $result = mysql_query($sql, $conn);
+
+                        echo "<thead>
+                                <tr>
+                                    <th>Attendance ID</th>
+                                    <th>Employee ID</th>
+                                    <th>Ngày</th>
+                                    <th>Giờ Vào</th>
+                                    <th>Trạng Thái Vào</th>
+                                    <th>Giờ Ra</th>
+                                    <th>Trạng Thái Ra</th>
+                                    <th>Chỉnh sửa</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
 
                         // Kiểm tra và hiển thị dữ liệu
                         if ($result && mysql_num_rows($result) > 0) {
@@ -109,11 +112,14 @@ checkUserRole('admin.php');
                                         <!-- Dropdown cho trạng thái vào -->
                                         <td>
                                             <span class='statusCheckIn'>{$row['statuscheckin']}</span>
-                                            <button class='btn btn-secondary dropdown-toggle' type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></button>
-                                            <div class='dropdown-menu'>
-                                                <a class='dropdown-item' href='#' data-value='late'>Late</a>
-                                                <a class='dropdown-item' href='#' data-value='soon'>Soon</a>
-                                                <a class='dropdown-item' href='#' data-value='approved'>Approved</a>
+                                            <div class='dropdown d-inline'>
+                                                <button class='btn btn-secondary dropdown-toggle' type='button' id='statusCheckInDropdown' data-bs-toggle='dropdown' aria-expanded='false'>
+                                                    ▼
+                                                </button>
+                                                <ul class='dropdown-menu' aria-labelledby='statusCheckInDropdown'>
+                                                    <li><a class='dropdown-item' href='#' data-value='late'>Late</a></li>
+                                                    <li><a class='dropdown-item' href='#' data-value='approved'>Approved</a></li>
+                                                </ul>
                                             </div>
                                         </td>
                                         
@@ -122,11 +128,14 @@ checkUserRole('admin.php');
                                         <!-- Dropdown cho trạng thái ra -->
                                         <td>
                                             <span class='statusCheckOut'>{$row['statuscheckout']}</span>
-                                            <button class='btn btn-secondary dropdown-toggle' type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></button>
-                                            <div class='dropdown-menu'>
-                                                <a class='dropdown-item' href='#' data-value='late'>Late</a>
-                                                <a class='dropdown-item' href='#' data-value='soon'>Soon</a>
-                                                <a class='dropdown-item' href='#' data-value='approved'>Approved</a>
+                                            <div class='dropdown d-inline'>
+                                                <button class='btn btn-secondary dropdown-toggle' type='button' id='statusCheckInDropdown' data-bs-toggle='dropdown' aria-expanded='false'>
+                                                    ▼
+                                                </button>
+                                                <ul class='dropdown-menu' aria-labelledby='statusCheckInDropdown'>
+                                                    <li><a class='dropdown-item' href='#' data-value='soon'>Soon</a></li>
+                                                    <li><a class='dropdown-item' href='#' data-value='approved'>Approved</a></li>
+                                                </ul>
                                             </div>
                                         </td>
                                         
@@ -149,14 +158,14 @@ checkUserRole('admin.php');
 
 
         <!-- Sửa Thông Tin Nhân Viên -->
-        <section id="editEmployeeInfo" class="content-section d-none">
+        <section id="editEmployeeInfo"  class="content-section d-none">
             <h2>Sửa Thông Tin Nhân Viên</h2>
-            <form method="POST" action="">
+            <form method="POST" action="#editEmployeeInfo">
                 <div class="mb-3">
                     <label for="employeeIdInfo" class="form-label">Mã Nhân Viên</label>
                     <input type="text" id="employeeIdInfo" name="employeeIdInfo" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Tìm Kiếm</button>
+                <button type="submit" class="btn btn-primary" onclick="showSection('editEmployeeInfo')">Tìm Kiếm</button>
             </form>
 
             <!-- Hiển thị thông tin nhân viên -->
@@ -219,22 +228,44 @@ checkUserRole('admin.php');
         <!-- Đăng Ký Tài Khoản Nhân Viên -->
         <section id="registerEmployee" class="content-section d-none">
             <h2>Đăng Ký Tài Khoản Nhân Viên</h2>
-            <form>
+            <form method="POST" action="./PHP/registerEmployee.php">
                 <div class="mb-3">
-                    <label for="employeeNameReg" class="form-label">Tên Nhân Viên</label>
-                    <input type="text" id="employeeNameReg" name="employeeNameReg" class="form-control">
+                    <label for="username" class="form-label">Tên Đăng Nhập</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">Tên</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Họ</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label for="employeeEmail" class="form-label">Email</label>
-                    <input type="email" id="employeeEmail" name="employeeEmail" class="form-control">
+                    <input type="email" id="employeeEmail" name="employeeEmail" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="employeePhone" class="form-label">Điện Thoại</label>
+                    <input type="text" id="employeePhone" name="employeePhone" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="employeePosition" class="form-label">Chức Vụ</label>
+                    <input type="text" id="employeePosition" name="employeePosition" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="hireDate" class="form-label">Ngày Tuyển Dụng</label>
+                    <input type="date" id="hireDate" name="hireDate" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label for="employeePassword" class="form-label">Mật Khẩu</label>
-                    <input type="password" id="employeePassword" name="employeePassword" class="form-control">
+                    <input type="password" id="employeePassword" name="employeePassword" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Đăng Ký</button>
             </form>
         </section>
+
+
 
         <!-- Xóa/Khóa Tài Khoản Nhân Viên -->
         <section id="manageEmployeeAccount" class="content-section d-none">

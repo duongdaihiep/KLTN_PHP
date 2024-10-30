@@ -3,23 +3,37 @@ function showSection(sectionId) {
     // Ẩn tất cả các phần nội dung
     const sections = document.querySelectorAll('.content-section');
     sections.forEach(section => {
-        section.classList.add('d-none'); // Thêm lớp 'd-none' để ẩn
+        section.classList.add('d-none');
     });
 
     // Hiển thị phần được chọn
     const selectedSection = document.getElementById(sectionId);
-    selectedSection.classList.remove('d-none'); // Xóa lớp 'd-none' để hiển thị
+    selectedSection.classList.remove('d-none');
 
     // Cập nhật trạng thái active cho menu
     const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
     navLinks.forEach(link => {
-        link.classList.remove('active'); // Xóa lớp active
+        link.classList.remove('active');
     });
-    
+
     // Thêm lớp active cho liên kết được chọn
     const activeLink = document.querySelector(`.navbar-nav .nav-link[onclick="showSection('${sectionId}')"]`);
-    activeLink.classList.add('active');
+    if (activeLink) activeLink.classList.add('active');
+
+    // Lưu section ID vào localStorage
+    localStorage.setItem('currentSection', sectionId);
 }
+
+// Khi trang được tải lại, hiển thị phần đã lưu
+document.addEventListener('DOMContentLoaded', () => {
+    const savedSection = localStorage.getItem('currentSection');
+    if (savedSection) {
+        showSection(savedSection);
+    } else {
+        showSection('editAttendance'); // Section mặc định
+    }
+});
+
 
 // Bắt đầu hiển thị phần "home" khi trang được tải
 document.addEventListener('DOMContentLoaded', () => {

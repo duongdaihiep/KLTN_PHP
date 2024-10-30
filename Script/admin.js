@@ -133,3 +133,61 @@ document.addEventListener('DOMContentLoaded', function () {
 //     });
 // });
 
+
+
+$(document).ready(function() {
+    // Khi người dùng chọn trạng thái từ dropdown
+    $('#attendanceTable').on('click', '.dropdown-item', function(event) {
+        event.preventDefault();
+
+        const selectedStatus = $(this).data('value');
+        const statusCell = $(this).closest('td').find('span');
+        
+        // Cập nhật giá trị trạng thái trong ô
+        statusCell.text(selectedStatus);
+    });
+
+    // Khi người dùng nhấn nút "Lưu"
+    $('#attendanceTable').on('click', '.saveBtn', function() {
+        const row = $(this).closest('tr');
+        const attendanceID = row.data('attendance-id');
+        const statusCheckIn = row.find('.statusCheckIn').text();
+        const statusCheckOut = row.find('.statusCheckOut').text();
+
+        // Gửi yêu cầu AJAX đến server để cập nhật dữ liệu
+        $.ajax({
+            url: './PHP/update_attendance_status.php', // URL của file PHP xử lý cập nhật
+            method: 'POST',
+            data: {
+                attendanceID: attendanceID,
+                statusCheckIn: statusCheckIn,
+                statusCheckOut: statusCheckOut
+            },
+            success: function(response) {
+                alert(response); // Hiển thị thông báo thành công
+            },
+            error: function(xhr, status, error) {
+                alert("Lỗi khi cập nhật trạng thái: " + error); // Hiển thị lỗi nếu có
+            }
+        });
+    });
+});
+
+
+document.querySelector('#editEmployeeInfo form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Ngăn tải lại trang
+
+    const formData = new FormData(this);
+
+    fetch('./PHP/searchEmployee.php', { // Cập nhật URL đến file tìm kiếm
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        document.querySelector('#editEmployeeInfo').innerHTML = data; // Hiển thị dữ liệu nhân viên
+    })
+    .catch(error => console.error('Lỗi:', error));
+});
+
+
