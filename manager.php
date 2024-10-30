@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 session_start();
 if (!isset($_SESSION['username'])) {
     // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
@@ -7,6 +8,23 @@ if (!isset($_SESSION['username'])) {
 }
 include './PHP/dungChung.php'; // Đường dẫn đến file chứa hàm checkUserRole
 checkUserRole('manager.php');
+include './PHP/db.php';
+
+// Xử lý yêu cầu duyệt nghỉ phép
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && isset($_POST['leaveStatus'])) {
+    $leaveRequestId = $_POST['leaveRequestId'];
+    $leaveStatus = $_POST['leaveStatus'];
+
+    // Cập nhật trạng thái yêu cầu nghỉ phép
+    $sql_update = "UPDATE LeaveRequests SET Status = '$leaveStatus' WHERE LeaveRequestID = $leaveRequestId";
+    if (mysql_query($sql_update, $conn)) {
+        echo "<script>alert('Cập nhật trạng thái yêu cầu thành công!');</script>";
+    } else {
+        echo "<script>alert('Có lỗi xảy ra khi cập nhật trạng thái: " . mysql_error() . "');</script>";
+    }
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -99,22 +117,55 @@ checkUserRole('manager.php');
         </section>
 
         <!-- Duyệt Nghỉ Phép -->
-        <section id="leaveApproval" class="content-section d-none">
-            <h2>Duyệt Nghỉ Phép</h2>
-            <form>
-                <div class="mb-3">
-                    <label for="leaveRequestId" class="form-label">Mã Yêu Cầu Nghỉ Phép</label>
-                    <input type="text" id="leaveRequestId" name="leaveRequestId" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="leaveStatus" class="form-label">Trạng Thái</label>
-                    <select id="leaveStatus" name="leaveStatus" class="form-select">
-                        <option value="approved">Duyệt</option>
-                        <option value="rejected">Từ Chối</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Cập Nhật</button>
-            </form>
+        <section id="leaveApproval" class="content-section">
+            <h3>Danh Sách Yêu Cầu Nghỉ Phép</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã Yêu Cầu</th>
+                        <th>Mã Nhân Viên</th>
+                        <th>Ngày Bắt Đầu</th>
+                        <th>Ngày Kết Thúc</th>
+                        <th>Lý Do</th>
+                        <th>Trạng Thái</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $sql = "SELECT * FROM LeaveRequests ORDER BY CASE WHEN Status = 'pending' THEN 0 ELSE 1 END, LeaveRequestID DESC";
+                    $result = mysql_query($sql, $conn);
+                    // Hiển thị danh sách yêu cầu
+                    if (mysql_num_rows($result) > 0) {
+                        while ($row = mysql_fetch_assoc($result)) {
+                            echo "<tr>";
+                            echo "<td>" . $row['LeaveRequestID'] . "</td>";
+                            echo "<td>" . $row['EmployeeID'] . "</td>";
+                            echo "<td>" . $row['StartDate'] . "</td>";
+                            echo "<td>" . $row['EndDate'] . "</td>";
+                            echo "<td>" . $row['Reason'] . "</td>";
+                            echo "<td>" . $row['Status'] . "</td>";
+                            echo 
+                                "<td>
+                                    <form method='POST' action='./PHP/leaveApproval.php' style='display:inline;'>
+                                        <input type='hidden' name='leaveRequestId' value='" . $row['LeaveRequestID'] . "'>
+                                        <input type='hidden' name='leaveStatus' value='approved'>
+                                        <button type='submit' class='btn btn-success'>Duyệt</button>
+                                    </form>
+                                    <form method='POST' action='./PHP/leaveApproval.php' style='display:inline;'>
+                                        <input type='hidden' name='leaveRequestId' value='" . $row['LeaveRequestID'] . "'>
+                                        <input type='hidden' name='leaveStatus' value='Refuse'>
+                                        <button type='submit' class='btn btn-danger'>Từ chối</button>
+                                    </form>
+                                </td>"  ;
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='6'>Không có yêu cầu nào.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </section>
 
         <!-- Duyệt Đăng Ký Tăng Ca -->
@@ -146,7 +197,6 @@ checkUserRole('manager.php');
     <?php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
         echo "<script>alert(" . json_encode($_POST['status']) . ");</script>";
-        location.reload();
     }
     ?>
     <footer class="bg-primary text-white text-center py-3 mt-5">
