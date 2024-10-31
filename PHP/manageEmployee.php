@@ -1,58 +1,54 @@
 <?php
-header('Content-Type: text/html; charset=utf-8');
+header('Content-Type: application/json; charset=utf-8');
 include 'db.php'; // Kết nối cơ sở dữ liệu
 
-// Kiểm tra phương thức gửi dữ liệu
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $employeeId = $_POST['employeeIdManage'];
-    $action = $_POST['action'];
+    if (isset($_POST['searchEmployee']) && isset($_POST['employeeIdManage'])) {
+        // Xử lý tìm kiếm
+        $employeeId = $_POST['employeeIdManage'];
+        $sql = "SELECT EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName, Email, Phone 
+                FROM employees 
+                WHERE EmployeeID = '$employeeId'";
+        $result = mysql_query($sql, $conn);
 
-    // Kiểm tra hành động là khóa hay xóa
-    if ($action === 'lock') {
-        // Cập nhật status trong bảng user
-        $sql = "UPDATE user SET status = 'Lock' WHERE employeeId = '$employeeId'";
-        if (mysql_query($sql, $conn)) {
-            echo "<form id='redirectForm' action='../admin.php' method='POST'>
-                <input type='hidden' name='status' value='Tài khoản đã được khóa thành công!'>
-              </form>
-              <script>
-                document.getElementById('redirectForm').submit();
-              </script>";
-
+        if ($result && mysql_num_rows($result) > 0) {
+            $employee = mysql_fetch_assoc($result);
+            echo json_encode(array('status' => 'found', 'data' => $employee));
         } else {
-            echo "<form id='redirectForm' action='../admin.php' method='POST'>
-                <input type='hidden' name='status' value='Có lỗi xảy ra khi khóa tài khoản!'>
-              </form>
-              <script>
-                document.getElementById('redirectForm').submit();
-              </script>";
+            echo json_encode(array('status' => 'not_found', 'message' => 'Không tìm thấy nhân viên'));
         }
-    } elseif ($action === 'delete') {
-        // Xóa nhân viên trong cả hai bảng user và employees
-        $sql1 = "DELETE FROM user WHERE employeeId = '$employeeId'";
-        $sql2 = "DELETE FROM employees WHERE employeeId = '$employeeId'";
+        exit;
+    }
 
-        // Thực hiện xóa
-        if (mysql_query($sql1, $conn) && mysql_query($sql2, $conn)) {
-            echo "<form id='redirectForm' action='../admin.php' method='POST'>
-                <input type='hidden' name='status' value='Tài khoản đã được xóa thành công! '>
-              </form>
-              <script>
-                document.getElementById('redirectForm').submit();
-              </script>";
-        } else {
-            // echo "<script>alert('Có lỗi xảy ra khi xóa tài khoản: " . mysql_error() . "'); window.location.href='../admin.php';</script>";
+    if (isset($_POST['employeeId']) && isset($_POST['action'])) {
+        $employeeId = $_POST['employeeId'];
+        $action = $_POST['action'];
 
-            echo "<form id='redirectForm' action='../admin.php' method='POST'>
-                <input type='hidden' name='status' value='Có lỗi xảy ra khi khóa tài khoản! '>
-              </form>
-              <script>
-                document.getElementById('redirectForm').submit();
-              </script>";
+        if ($action === 'lock') {
+            $sql = "UPDATE user SET status = 'Lock' WHERE employeeId = '$employeeId'";
+            if (mysql_query($sql, $conn)) {
+                echo json_encode(array('status' => 'success', 'message' => 'Tài khoản đã được khóa thành công!'));
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Có lỗi xảy ra khi khóa tài khoản!'));
+            }
+        } elseif ($action === 'delete') {
+            $sql1 = "DELETE FROM user WHERE employeeId = '$employeeId'";
+            $sql2 = "DELETE FROM employees WHERE employeeId = '$employeeId'";
+            if (mysql_query($sql1, $conn) && mysql_query($sql2, $conn)) {
+                echo json_encode(array('status' => 'success', 'message' => 'Tài khoản đã được xóa thành công!'));
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Có lỗi xảy ra khi xóa tài khoản!'));
+            }
+        } elseif($action === 'active'){
+            $sql="UPDATE user SET status = 'active' WHERE employeeId = '$employeeId'";
+            if (mysql_query($sql, $conn)) {
+                echo json_encode(array('status' => 'success', 'message' => 'Tài khoản đã được kích hoạt thành công!'));
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Có lỗi xảy ra khi kích hoạt tài khoản!'));
+            }
         }
     }
 }
 
-// Đóng kết nối
 mysql_close($conn);
 ?>

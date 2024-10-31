@@ -224,24 +224,79 @@ checkUserRole('admin.php');
 
 
 
-        <!-- Xóa/Khóa Tài Khoản Nhân Viên -->
-        <section id="manageEmployeeAccount" class="content-section d-none">
+        <section id="manageEmployeeAccount" class="content-section">
             <h2>Xóa/Khóa Tài Khoản Nhân Viên</h2>
-            <form action="./PHP/manageEmployee.php" method="POST">
+            
+            <!-- Form tìm kiếm nhân viên -->
+            <form id="searchEmployeeForm">
                 <div class="mb-3">
                     <label for="employeeIdManage" class="form-label">Mã Nhân Viên</label>
                     <input type="text" id="employeeIdManage" name="employeeIdManage" class="form-control" required>
+                    <button type="button" id="searchEmployeeButton" class="btn btn-primary mt-2" name="searchEmployee">Tìm Kiếm</button>
                 </div>
+            </form>
+
+            <!-- Kết quả tìm kiếm -->
+            <div id="employeeInfo" class="mt-3"></div>
+
+            <!-- Form xóa/khóa tài khoản (ẩn ban đầu) -->
+            <form id="manageAccountForm" action="./PHP/manageEmployee.php" method="POST" class="d-none mt-3">
+                <input type="hidden" name="employeeId" id="hiddenEmployeeId">
                 <div class="mb-3">
                     <label for="action" class="form-label">Hành Động</label>
                     <select id="action" name="action" class="form-select" required>
                         <option value="delete">Xóa Tài Khoản</option>
                         <option value="lock">Khóa Tài Khoản</option>
+                        <option value="active">Kích hoạt tài Khoản</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-danger">Thực Hiện</button>
             </form>
         </section>
+
+        <script>
+        document.getElementById('searchEmployeeButton').addEventListener('click', function() {
+            const employeeId = document.getElementById('employeeIdManage').value;
+
+            if (employeeId) {
+                fetch('./PHP/search.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        'searchEmployee': 'true',
+                        'employeeIdManage': employeeId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const employeeInfoDiv = document.getElementById('employeeInfo');
+                    const manageAccountForm = document.getElementById('manageAccountForm');
+                    
+                    if (data.status === 'found') {
+                        const { EmployeeID, FullName, Email, Phone, status1 } = data.data;
+                        employeeInfoDiv.innerHTML = `
+                            <p><strong>Mã Nhân Viên:</strong> ${EmployeeID}</p>
+                            <p><strong>Họ Tên:</strong> ${FullName}</p>
+                            <p><strong>Email:</strong> ${Email}</p>
+                            <p><strong>Điện Thoại:</strong> ${Phone}</p>
+                            <p><strong>Trạng thái:</strong> ${status1}</p>
+                        `;
+                        
+                        // Đặt ID nhân viên ẩn trong form và hiển thị form xóa/khóa tài khoản
+                        document.getElementById('hiddenEmployeeId').value = EmployeeID;
+                        manageAccountForm.classList.remove('d-none');
+                    } else {
+                        employeeInfoDiv.innerHTML = "<p class='text-danger'>Không tìm thấy nhân viên với mã này.</p>";
+                        manageAccountForm.classList.add('d-none'); // Ẩn form nếu không tìm thấy
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+        </script>
+
+
+
 
 
         <!-- Đăng Xuất -->

@@ -190,4 +190,35 @@ document.querySelector('#editEmployeeInfo form').addEventListener('submit', func
     .catch(error => console.error('Lỗi:', error));
 });
 
+document.getElementById('searchEmployeeButton').addEventListener('click', function() {
+    const employeeId = document.getElementById('employeeIdManage').value;
+
+    if (employeeId) {
+        fetch('./PHP/search.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `employeeIdManage=${employeeId}&searchEmployee=true`
+        })
+        
+        .then(response => response.json())
+        .then(data => {
+            const employeeInfoDiv = document.getElementById('employeeInfo');
+            
+            if (data.status === 'found') {
+                const { EmployeeID, FullName, Email, Phone } = data.data;
+                employeeInfoDiv.innerHTML = `
+                    <p><strong>Mã Nhân Viên:</strong> ${EmployeeID}</p>
+                    <p><strong>Họ Tên:</strong> ${FullName}</p>
+                    <p><strong>Email:</strong> ${Email}</p>
+                    <p><strong>Điện Thoại:</strong> ${Phone}</p>
+                `;
+            } else {
+                employeeInfoDiv.innerHTML = "<p class='text-danger'>Không tìm thấy nhân viên với mã này.</p>";
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+});
+
+
 

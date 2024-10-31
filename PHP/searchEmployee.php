@@ -82,6 +82,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     mysql_close($conn);
+    }
 }
 ?>
-
