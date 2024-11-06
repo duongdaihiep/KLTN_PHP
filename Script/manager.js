@@ -69,3 +69,110 @@ $(document).ready(function() {
 });
 
 
+ // Lắng nghe sự thay đổi giữa các radio button để hiển thị đúng input
+ document.querySelectorAll('input[name="shiftOption"]').forEach(input => {
+    input.addEventListener('change', function() {
+        if (this.value === 'bulk') {
+            document.getElementById('shiftDateContainer').style.display = 'none';
+            document.getElementById('shiftMonthContainer').style.display = 'block';
+        } else {
+            document.getElementById('shiftDateContainer').style.display = 'block';
+            document.getElementById('shiftMonthContainer').style.display = 'none';
+        }
+    });
+});
+
+
+$(document).ready(function() {
+    // Mặc định chọn Xếp Ca Theo Ngày
+    $('#singleDayShift').addClass('active');
+    $('#shiftDateWrapper').show();
+    $('#shiftMonthWrapper').hide();
+
+    // Khi người dùng nhấn vào nút "Xếp Ca Theo Ngày"
+    $('#singleDayShift').click(function() {
+        $('#singleDayShift').addClass('active');
+        $('#bulkShift').removeClass('active');
+        $('#shiftDateWrapper').show();
+        $('#shiftMonthWrapper').hide();
+    });
+
+    // Khi người dùng nhấn vào nút "Xếp Ca Đồng Loạt Trong Tháng"
+    $('#bulkShift').click(function() {
+        $('#bulkShift').addClass('active');
+        $('#singleDayShift').removeClass('active');
+        $('#shiftDateWrapper').hide();
+        $('#shiftMonthWrapper').show();
+    });
+});
+
+// submit xếp ca 
+$(document).ready(function() {
+    // Mặc định chọn "Xếp Ca Theo Ngày"
+    $('#singleDayShift').addClass('active');
+    $('#shiftDateWrapper').show();
+    $('#shiftMonthWrapper').hide();
+
+    // Khi người dùng nhấn vào nút "Xếp Ca Theo Ngày"
+    $('#singleDayShift').click(function() {
+        $('#singleDayShift').addClass('active');
+        $('#bulkShift').removeClass('active');
+        $('#shiftDateWrapper').show();
+        $('#shiftMonthWrapper').hide();
+    });
+
+    // Khi người dùng nhấn vào nút "Xếp Ca Đồng Loạt Trong Tháng"
+    $('#bulkShift').click(function() {
+        $('#bulkShift').addClass('active');
+        $('#singleDayShift').removeClass('active');
+        $('#shiftDateWrapper').hide();
+        $('#shiftMonthWrapper').show();
+    });
+
+    // Khi form được submit
+    $('form').submit(function(event) {
+        event.preventDefault(); // Ngăn chặn form submit mặc định
+
+        // Lấy dữ liệu từ form
+        var employeeId = $('#employeeIdShift').val();
+        var shiftTime = $('#shiftTime').val();
+        var shiftDate = $('#shiftDate').val(); // Ngày
+        var shiftMonth = $('#shiftMonth').val(); // Tháng
+
+        // Kiểm tra kiểu xếp ca
+        var shiftOption = $('button.active').data('shift');
+
+        // Chuẩn bị dữ liệu gửi đến server
+        var data = {
+            employeeId: employeeId,
+            shiftTime: shiftTime,
+            shiftOption: shiftOption,
+            shiftDate: shiftDate,
+            shiftMonth: shiftMonth
+        };
+
+        // Xử lý xếp ca theo ngày
+        if (shiftOption === 'singleDay' && shiftDate) {
+            data.workDate = shiftDate; // Dữ liệu ngày
+        }
+
+        // Xử lý xếp ca theo tháng
+        if (shiftOption === 'bulk' && shiftMonth) {
+            data.workMonth = shiftMonth; // Dữ liệu tháng
+        }
+
+        // Gửi yêu cầu AJAX đến server
+        $.ajax({
+            url: 'your_backend_php_file.php', // Đổi thành đường dẫn đúng tới file PHP của bạn
+            method: 'POST',
+            data: data,
+            success: function(response) {
+                alert('Xếp ca thành công');
+            },
+            error: function(xhr, status, error) {
+                alert("Lỗi khi xếp ca: " + error);
+            }
+        });
+    });
+});
+

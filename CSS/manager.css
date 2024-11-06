@@ -65,3 +65,21 @@ footer {
     bottom: 0;
     width: 100%;
 }
+.btn-group .btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-group .btn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-group .btn.active {
+    background-color: #007bff;
+    color: white;
+}
+
+

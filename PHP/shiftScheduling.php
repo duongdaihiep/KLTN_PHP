@@ -1,5 +1,28 @@
 <?php
-include 'db.php'; // Kết nối cơ sở dữ liệu
+// Kết nối với cơ sở dữ liệu
+include './PHP/db.php';
+// Lấy dữ liệu từ yêu cầu POST
+$employeeId = $_POST['employeeId'];
+$shiftTime = $_POST['shiftTime'];
+$shiftOption = $_POST['shiftOption'];
+
+if ($shiftOption == 'singleDay') {
+    $workDate = $_POST['shiftDate'];  // Dữ liệu ngày
+    $workMonth = null; // Không cần tháng
+} elseif ($shiftOption == 'bulk') {
+    $workDate = null;  // Không cần ngày
+    $workMonth = $_POST['shiftMonth'];  // Dữ liệu tháng
+}
+
+// Đảm bảo dữ liệu đã được gửi đầy đủ
+if (empty($employeeId) || empty($shiftTime)) {
+    die("Thiếu thông tin nhân viên hoặc ca làm.");
+}
+
+// Thêm dữ liệu vào bảng schedules
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Lấy dữ liệu từ yêu cầu POST
 $employeeId = $_POST['employeeId'];
