@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <script>
               document.getElementById('redirectForm').submit();
             </script>";
-
+            
     } else {
         // Nếu có lỗi, hiển thị thông báo lỗi
         echo "<form id='redirectForm' action='../manager.php' method='POST'>

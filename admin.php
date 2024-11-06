@@ -8,6 +8,11 @@ if (!isset($_SESSION['username'])) {
 }
 include './PHP/dungChung.php'; // Đường dẫn đến file chứa hàm checkUserRole
 checkUserRole('admin.php');
+// Kiểm tra và hiển thị thông báo
+if (isset($_POST['status'])) {
+    $status = htmlspecialchars($_POST['status'], ENT_QUOTES, 'UTF-8');
+    echo "<script>alert('$status');</script>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -57,11 +62,13 @@ checkUserRole('admin.php');
         </div>
     </nav>
 
-    <div class="container mt-5">
+    <div class="container mt-5 d-flex flex-column align-items-center">
         <!-- Sửa Chấm Công -->
         <section id="editAttendance" class="content-section">
-            <h2>Sửa Chấm Công</h2>
+            <div class="mb-3">
+                <h2 class='mb-3 text-center'>Sửa Chấm Công</h2>
 
+            </div>
             <!-- Form để tìm kiếm lịch sử chấm công -->
             <form method="POST" action="">
                 <div class="mb-3">
@@ -147,7 +154,7 @@ checkUserRole('admin.php');
                         } else {
                             echo "<tr><td colspan='8'>Không có dữ liệu cho nhân viên này.</td></tr>";
                         }
-                        mysql_close($conn);
+                        // mysql_close($conn);
                     }
                     ?>
                 </tbody>
@@ -159,7 +166,11 @@ checkUserRole('admin.php');
 
         <!-- Sửa Thông Tin Nhân Viên -->
         <section id="editEmployeeInfo"  class="content-section d-none">
-            <h2>Sửa Thông Tin Nhân Viên</h2>
+            <div class="mb-3">
+                <h2 class='mb-3 text-center'>Sửa Thông Tin Nhân Viên</h2>
+
+            </div>
+            <!-- Hiển thị thông tin nhân viên -->
             <form method="POST" action="#editEmployeeInfo">
                 <div class="mb-3">
                     <label for="employeeIdInfo" class="form-label">Mã Nhân Viên</label>
@@ -168,7 +179,6 @@ checkUserRole('admin.php');
                 <button type="submit" class="btn btn-primary" onclick="showSection('editEmployeeInfo')">Tìm Kiếm</button>
             </form>
 
-            <!-- Hiển thị thông tin nhân viên -->
             
         </section>
 
@@ -176,8 +186,10 @@ checkUserRole('admin.php');
 
         <!-- Đăng Ký Tài Khoản Nhân Viên -->
         <section id="registerEmployee" class="content-section d-none">
-            <h2>Đăng Ký Tài Khoản Nhân Viên</h2>
-            <form method="POST" action="./PHP/registerEmployee.php">
+        <div class="mb-3">
+        <h2 class='mb-3 text-center'>Đăng Ký Tài Khoản Nhân Viên</h2>
+        </div>
+        <form method="POST" action="./PHP/registerEmployee.php">
                 <div class="mb-3">
                     <label for="username" class="form-label">Tên Đăng Nhập</label>
                     <input type="text" id="username" name="username" class="form-control" required>
@@ -223,10 +235,12 @@ checkUserRole('admin.php');
         </section>
 
 
+        <!-- xóa, khóa tài khoản nhân viên  -->
+        <section id="manageEmployeeAccount" class="content-section ">
+            <div class="mb-3">
+            <h2 class="mb-3 text-center">Xóa/Khóa Tài Khoản Nhân Viên</h2>
 
-        <section id="manageEmployeeAccount" class="content-section">
-            <h2>Xóa/Khóa Tài Khoản Nhân Viên</h2>
-            
+            </div>
             <!-- Form tìm kiếm nhân viên -->
             <form id="searchEmployeeForm">
                 <div class="mb-3">
@@ -237,10 +251,12 @@ checkUserRole('admin.php');
             </form>
 
             <!-- Kết quả tìm kiếm -->
-            <div id="employeeInfo" class="mt-3"></div>
+            <div id="employeeInfo" class="mb-3"></div>
+
 
             <!-- Form xóa/khóa tài khoản (ẩn ban đầu) -->
-            <form id="manageAccountForm" action="./PHP/manageEmployee.php" method="POST" class="d-none mt-3">
+            <form id="manageAccountForm" action="./PHP/manageEmployee.php" method="POST" class="mb-3">
+                <div class="mb-3">
                 <input type="hidden" name="employeeId" id="hiddenEmployeeId">
                 <div class="mb-3">
                     <label for="action" class="form-label">Hành Động</label>
@@ -251,6 +267,7 @@ checkUserRole('admin.php');
                     </select>
                 </div>
                 <button type="submit" class="btn btn-danger">Thực Hiện</button>
+                </div>
             </form>
         </section>
 

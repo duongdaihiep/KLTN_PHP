@@ -31,9 +31,11 @@ nav .nav-link {
 
 .content-section {
     margin-bottom: 50px;
-   
     min-height: 320px;
+    min-width: 75%
+    
 }
+
 
 h2 {
     font-size: 24px;
@@ -56,7 +58,8 @@ h2 {
     color: #fff;
 }
 
-.table tbody td, .table tbody th {
+.table tbody td,
+.table tbody th {
     border-top: 1px solid #dee2e6;
 }
 
@@ -105,7 +108,8 @@ form .btn-danger:hover {
 /* Footer styling */
 
 footer {
-    background-color: #007bff; /* Màu nền của footer */
+    background-color: #007bff;
+    /* Màu nền của footer */
     color: white;
     text-align: center;
     padding: 15px 0;
@@ -117,18 +121,24 @@ footer {
 
 /* Đảm bảo rằng các nút trong thanh điều hướng đều có cùng kiểu dáng */
 .navbar-nav .nav-link {
-    display: inline-block; /* Đảm bảo nút nằm thẳng hàng */
-    padding: 0.5rem 1rem; /* Padding giống như các nút khác */
-    color: #fff; /* Màu chữ */
-    text-decoration: none; /* Không gạch chân */
+    display: inline-block;
+    /* Đảm bảo nút nằm thẳng hàng */
+    padding: 0.5rem 1rem;
+    /* Padding giống như các nút khác */
+    color: #fff;
+    /* Màu chữ */
+    text-decoration: none;
+    /* Không gạch chân */
 }
 
 .navbar-nav .nav-link:hover {
-    color: #0056b3; /* Màu chữ khi hover */
+    color: #0056b3;
+    /* Màu chữ khi hover */
 }
 
 .navbar-nav .nav-link.active {
-    font-weight: bold; /* Tạo đậm cho nút đang hoạt động */
+    font-weight: bold;
+    /* Tạo đậm cho nút đang hoạt động */
 }
 
 
@@ -147,6 +157,7 @@ footer {
         font-size: 20px;
     }
 }
+
 /* admin-styles.css */
 
 /* Lớp mặc định của tab */

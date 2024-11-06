@@ -30,14 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedSection) {
         showSection(savedSection);
     } else {
-        showSection('editAttendance'); // Section mặc định
+        showSection('shiftScheduling'); // Section mặc định
     }
 });
 
 
 // Bắt đầu hiển thị phần "home" khi trang được tải
 document.addEventListener('DOMContentLoaded', () => {
-    showSection('home'); // Mặc định hiển thị phần trang chủ
+    showSection('shiftScheduling'); // Mặc định hiển thị phần trang chủ
 });
 
 // Hàm truy cập camera (ưu tiên camera trước)

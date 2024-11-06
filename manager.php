@@ -35,6 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./CSS/manager.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
     <header class="bg-primary text-white text-center py-3">
@@ -75,7 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
     <div class="container mt-5">
         <!-- Xếp Ca -->
         <section id="shiftScheduling" class="content-section">
-            <h2>Xếp Ca</h2>
+            <div class="mb-3">
+                <h2 class='mb-3 text-center'>Xếp Ca</h2>
+            </div>
             <form>
                 <div class="mb-3">
                     <label for="employeeIdShift" class="form-label">Mã Nhân Viên</label>
@@ -99,26 +103,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
 
         <!-- Duyệt Chấm Công -->
         <section id="attendanceApproval" class="content-section d-none">
-            <h2>Duyệt Chấm Công</h2>
-            <form>
+            <div class="mb-3">
+                <h2 class='mb-3 text-center'>Duyệt Chấm Công</h2>
+
+            </div>
+            <!-- Form để tìm kiếm lịch sử chấm công -->
+            <form method="POST" action="">
                 <div class="mb-3">
-                    <label for="attendanceId" class="form-label">Mã Chấm Công</label>
-                    <input type="text" id="attendanceId" name="attendanceId" class="form-control">
+                    <label for="employeeId" class="form-label">Mã Nhân Viên</label>
+                    <input type="text" id="employeeId" name="employeeId" class="form-control" required>
                 </div>
-                <div class="mb-3">
-                    <label for="attendanceStatus" class="form-label">Trạng Thái</label>
-                    <select id="attendanceStatus" name="attendanceStatus" class="form-select">
-                        <option value="approved">Duyệt</option>
-                        <option value="rejected">Từ Chối</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                <button type="submit" class="btn btn-primary">Lịch Sử Chấm Công</button>
             </form>
+
+            <!-- Bảng hiển thị lịch sử chấm công -->
+            <table class="table mt-4" id="attendanceTable">
+                
+                    <?php
+                    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
+                        $employeeId = $_POST['employeeId'];
+
+                        // Truy vấn lấy lịch sử chấm công của nhân viên
+                        $sql = "SELECT attendanceID, EmployeeID, date, checkintime, checkouttime, 
+                                statuscheckin, statuscheckout 
+                                FROM attendance 
+                                WHERE EmployeeID = '$employeeId'";
+                        include './PHP/db.php';
+                        $result = mysql_query($sql, $conn);
+
+                        echo "<thead>
+                                <tr>
+                                    <th>Attendance ID</th>
+                                    <th>Employee ID</th>
+                                    <th>Ngày</th>
+                                    <th>Giờ Vào</th>
+                                    <th>Trạng Thái Vào</th>
+                                    <th>Giờ Ra</th>
+                                    <th>Trạng Thái Ra</th>
+                                    <th>Chỉnh sửa</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+
+                        // Kiểm tra và hiển thị dữ liệu
+                        if ($result && mysql_num_rows($result) > 0) {
+                            while ($row = mysql_fetch_assoc($result)) {
+                                echo "<tr data-attendance-id='{$row['attendanceID']}'>
+                                        <td><span class='attendanceID'>{$row['attendanceID']}</span></td>
+                                        <td><span class='employeeID'>{$row['EmployeeID']}</span></td>
+                                        <td><span class='date'>{$row['date']}</span></td>
+                                        <td><span class='checkIn'>{$row['checkintime']}</span></td>
+                                        
+                                        <!-- Dropdown cho trạng thái vào -->
+                                        <td>
+                                            <span class='statusCheckIn'>{$row['statuscheckin']}</span>
+                                            <div class='dropdown d-inline'>
+                                                <button class='btn btn-secondary dropdown-toggle' type='button' id='statusCheckInDropdown' data-bs-toggle='dropdown' aria-expanded='false'>
+                                                    ▼
+                                                </button>
+                                                <ul class='dropdown-menu' aria-labelledby='statusCheckInDropdown'>
+                                                    <li><a class='dropdown-item' href='#' data-value='late'>Late</a></li>
+                                                    <li><a class='dropdown-item' href='#' data-value='approved'>Approved</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        
+                                        <td><span class='checkOut'>{$row['checkouttime']}</span></td>
+                                        
+                                        <!-- Dropdown cho trạng thái ra -->
+                                        <td>
+                                            <span class='statusCheckOut'>{$row['statuscheckout']}</span>
+                                            <div class='dropdown d-inline'>
+                                                <button class='btn btn-secondary dropdown-toggle' type='button' id='statusCheckInDropdown' data-bs-toggle='dropdown' aria-expanded='false'>
+                                                    ▼
+                                                </button>
+                                                <ul class='dropdown-menu' aria-labelledby='statusCheckInDropdown'>
+                                                    <li><a class='dropdown-item' href='#' data-value='soon'>Soon</a></li>
+                                                    <li><a class='dropdown-item' href='#' data-value='approved'>Approved</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        
+                                        <td>
+                                            <button class='btn btn-success saveBtn'>Lưu</button>
+                                        </td>
+                                    </tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='8'>Không có dữ liệu cho nhân viên này.</td></tr>";
+                        }
+                        // mysql_close($conn);
+                    }
+                    ?>
+                </tbody>
+            </table>
         </section>
 
         <!-- Duyệt Nghỉ Phép -->
-        <section id="leaveApproval" class="content-section">
-            <h3>Danh Sách Yêu Cầu Nghỉ Phép</h3>
+        <section id="leaveApproval" class="content-section d-none">
+            <div class="mb-3">
+                <h3 class='mb-3 text-center'>Danh Sách Yêu Cầu Nghỉ Phép</h3>
+
+            </div>
             <table class="table">
                 <thead>
                     <tr>
@@ -133,11 +219,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
                 </thead>
                 <tbody>
                     <?php
-                    $sql = "SELECT * FROM LeaveRequests ORDER BY CASE WHEN Status = 'pending' THEN 0 ELSE 1 END, LeaveRequestID DESC";
-                    $result = mysql_query($sql, $conn);
-                    // Hiển thị danh sách yêu cầu
+                    $conn = mysql_connect($servername, $username, $password);
+                    $sql = "SELECT * FROM LeaveRequests WHERE `status` = 'Pending' ORDER BY LeaveRequestID DESC";
+                    $result = mysql_query($sql, $conn);  // Sử dụng mysql_query()
+                    echo "";
+                    // Kiểm tra nếu có dữ liệu trả về
                     if (mysql_num_rows($result) > 0) {
                         while ($row = mysql_fetch_assoc($result)) {
+                            // Hiển thị dữ liệu yêu cầu nghỉ phép
                             echo "<tr>";
                             echo "<td>" . $row['LeaveRequestID'] . "</td>";
                             echo "<td>" . $row['EmployeeID'] . "</td>";
@@ -170,7 +259,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
 
         <!-- Duyệt Đăng Ký Tăng Ca -->
         <section id="overtimeApproval" class="content-section d-none">
-            <h2>Duyệt Đăng Ký Tăng Ca</h2>
+            <div class="mb-3">
+                <h2 class='mb-3 text-center'>Duyệt Đăng Ký Tăng Ca</h2>
+
+            </div>
             <form>
                 <div class="mb-3">
                     <label for="overtimeRequestId" class="form-label">Mã Đăng Ký Tăng Ca</label>
@@ -208,5 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
 
     <!-- Custom Admin Script -->
     <script src="./Script/manager.js"></script>
+    <!-- <script src="./Script/admin.js"></script> -->
+
 </body>
 </html>
