@@ -80,59 +80,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
             <div class="mb-3">
                 <h2 class="mb-3 text-center">Xếp Ca</h2>
             </div>
-            <form>
-            <div class="mb-3">
-                <label for="shiftOption" class="form-label">Chọn kiểu xếp ca</label>
-                <div class="btn-group" role="group" aria-label="Shift Options">
-                    <button type="button" class="btn btn-outline-primary" id="singleDayShift" data-shift="singleDay">Xếp Ca Theo Ngày</button>
-                    <button type="button" class="btn btn-outline-primary" id="bulkShift" data-shift="bulk">Xếp Ca Theo Tháng</button>
-                </div>
-            </div>
-
-            <!-- Hiển thị ngày hoặc tháng tùy chọn -->
-            <div class="mb-3" id="shiftDateWrapper">
-                <label for="shiftDate" class="form-label">Ngày</label>
-                <input type="date" id="shiftDate" name="shiftDate" class="form-control">
-            </div>
-
-            <div class="mb-3" id="shiftMonthWrapper" style="display: none;">
-                <label for="shiftMonth" class="form-label">Chọn Tháng</label>
-                <input type="month" id="shiftMonth" name="shiftMonth" class="form-control">
-            </div>
-
-
-
-                <!-- Nhập mã nhân viên -->
+            <form id="shiftForm" method="POST" action="../KLTN_20029511/PHP/shiftScheduling.php">
                 <div class="mb-3">
-                    <label for="employeeIdShift" class="form-label">Mã Nhân Viên</label>
-                    <input type="text" id="employeeIdShift" name="employeeIdShift" class="form-control">
+                    <label for="shiftOption" class="form-label">Chọn kiểu xếp ca</label>
+                    <div class="btn-group" role="group" aria-label="Shift Options">
+                        <button type="button" class="btn btn-outline-primary" id="singleDayShift" data-shift="singleDayShift">Xếp Ca Theo Ngày</button>
+                        <button type="button" class="btn btn-outline-primary" id="bulkShift" data-shift="bulkShift">Xếp Ca Theo Tháng</button>
+                    </div>
                 </div>
 
-                <!-- Nhập ngày hoặc tháng -->
-                <div class="mb-3" id="shiftDateContainer">
+                <!-- Hiển thị ngày hoặc tháng tùy chọn -->
+                <div class="mb-3" id="shiftDateWrapper">
                     <label for="shiftDate" class="form-label">Ngày</label>
                     <input type="date" id="shiftDate" name="shiftDate" class="form-control">
                 </div>
 
-                <!-- Nhập tháng -->
-                <div class="mb-3" id="shiftMonthContainer" style="display: none;">
-                    <label for="shiftMonth" class="form-label">Tháng</label>
+                <div class="mb-3" id="shiftMonthWrapper" style="display: none;">
+                    <label for="shiftMonth" class="form-label">Chọn Tháng</label>
                     <input type="month" id="shiftMonth" name="shiftMonth" class="form-control">
+                </div>
+
+                <!-- Nhập mã nhân viên -->
+                <div class="mb-3">
+                    <label for="employeeIdShift" class="form-label">Mã Nhân Viên</label>
+                    <input type="text" id="employeeIdShift" name="employeeIdShift" class="form-control" required>
                 </div>
 
                 <!-- Nhập ca làm -->
                 <div class="mb-3">
                     <label for="shiftTime" class="form-label">Ca Làm</label>
-                    <select id="shiftTime" name="shiftTime" class="form-select">
+                    <select id="shiftTime" name="shiftTime" class="form-select" required>
                         <option value="morning">7H-17H</option>
-                        <option value="afternoon">14h-0H</option>
+                        <option value="afternoon">14H-0H</option>
                         <option value="night">22H-8H</option>
                     </select>
                 </div>
 
+                <!-- Hidden input để lưu kiểu xếp ca -->
+                <input type="hidden" id="shiftType" name="shiftType" value="singleDayShift">
+
+
                 <button type="submit" class="btn btn-primary">Xếp Ca</button>
             </form>
         </section>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const singleDayShiftBtn = document.getElementById('singleDayShift');
+                const bulkShiftBtn = document.getElementById('bulkShift');
+                const shiftDateWrapper = document.getElementById('shiftDateWrapper');
+                const shiftMonthWrapper = document.getElementById('shiftMonthWrapper');
+                const shiftTypeInput = document.getElementById('shiftType');
+
+                singleDayShiftBtn.addEventListener('click', function () {
+                    shiftTypeInput.value = 'singleDay';
+                    shiftDateWrapper.style.display = 'block';
+                    shiftMonthWrapper.style.display = 'none';
+                    singleDayShiftBtn.classList.add('btn-primary');
+                    singleDayShiftBtn.classList.remove('btn-outline-primary');
+                    bulkShiftBtn.classList.remove('btn-primary');
+                    bulkShiftBtn.classList.add('btn-outline-primary');
+                });
+
+                bulkShiftBtn.addEventListener('click', function () {
+                    shiftTypeInput.value = 'bulk';
+                    shiftDateWrapper.style.display = 'none';
+                    shiftMonthWrapper.style.display = 'block';
+                    bulkShiftBtn.classList.add('btn-primary');
+                    bulkShiftBtn.classList.remove('btn-outline-primary');
+                    singleDayShiftBtn.classList.remove('btn-primary');
+                    singleDayShiftBtn.classList.add('btn-outline-primary');
+                });
+            });
+        </script>
+
         <!-- Duyệt Chấm Công -->
         <section id="attendanceApproval" class="content-section d-none">
             <div class="mb-3">

@@ -1,99 +1,97 @@
 <?php
-// Kết nối với cơ sở dữ liệu
-include './PHP/db.php';
-// Lấy dữ liệu từ yêu cầu POST
-$employeeId = $_POST['employeeId'];
-$shiftTime = $_POST['shiftTime'];
-$shiftOption = $_POST['shiftOption'];
+// Kết nối cơ sở dữ liệu
+include 'db.php';
 
-if ($shiftOption == 'singleDay') {
-    $workDate = $_POST['shiftDate'];  // Dữ liệu ngày
-    $workMonth = null; // Không cần tháng
-} elseif ($shiftOption == 'bulk') {
-    $workDate = null;  // Không cần ngày
-    $workMonth = $_POST['shiftMonth'];  // Dữ liệu tháng
-}
-
-// Đảm bảo dữ liệu đã được gửi đầy đủ
-if (empty($employeeId) || empty($shiftTime)) {
-    die("Thiếu thông tin nhân viên hoặc ca làm.");
-}
-
-// Thêm dữ liệu vào bảng schedules
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Lấy dữ liệu từ yêu cầu POST
-$employeeId = $_POST['employeeId'];
-$shiftTime = $_POST['shiftTime'];
-$shiftOption = $_POST['shiftOption'];
-
-if ($shiftOption == 'singleDay') {
-    $workDate = $_POST['shiftDate'];  // Dữ liệu ngày
-    $workMonth = null; // Không cần tháng
-} elseif ($shiftOption == 'bulk') {
-    $workDate = null;  // Không cần ngày
-    $workMonth = $_POST['shiftMonth'];  // Dữ liệu tháng
-}
-
-// Đảm bảo dữ liệu đã được gửi đầy đủ
-if (empty($employeeId) || empty($shiftTime)) {
-    die("Thiếu thông tin nhân viên hoặc ca làm.");
-}
-
-// Khai báo biến thông báo
-$statusMessage = '';
-
-if ($workDate) {
-    // Xử lý xếp ca theo ngày
-    $sql = "INSERT INTO schedules (EmployeeID, WorkDate, StartTime, EndTime) VALUES ('$employeeId', '$workDate', '$shiftTime', '$shiftTime')";
-    if ($conn->query($sql) === TRUE) {
-        $statusMessage = 'Xếp ca theo ngày thành công!';
-    } else {
-        $statusMessage = 'Có lỗi xảy ra khi xếp ca theo ngày: ' . $conn->error;
+// Kiểm tra nếu form được submit
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['shiftType'])) {
+        die("Thiếu kiểu xếp ca!");
     }
-} elseif ($workMonth) {
-    // Xử lý xếp ca theo tháng
-    $startDate = "$workMonth-01"; // Tạo ngày bắt đầu của tháng
-    $endDate = date("Y-m-t", strtotime($startDate)); // Lấy ngày cuối cùng của tháng
 
-    // Lặp qua các ngày trong tháng và lưu vào bảng
-    $currentDate = $startDate;
-    $allSuccess = true;
-    while (strtotime($currentDate) <= strtotime($endDate)) {
-        $sql = "INSERT INTO schedules (EmployeeID, WorkDate, StartTime, EndTime) VALUES ('$employeeId', '$currentDate', '$shiftTime', '$shiftTime')";
-        if ($conn->query($sql) !== TRUE) {
-            $allSuccess = false;
+    $employeeId = $_POST['employeeId'];
+    $shiftType = $_POST['shiftType']; // singleDayShift hoặc bulkShift
+    $shiftTime = $_POST['shiftTime'];
+
+    // Tách giờ bắt đầu và kết thúc từ shiftTime
+    switch ($shiftTime) {
+        case 'morning':
+            $startTime = '07:00:00';
+            $endTime = '17:00:00';
             break;
-        }
-        $currentDate = date("Y-m-d", strtotime($currentDate . " +1 day"));
+        case 'afternoon':
+            $startTime = '14:00:00';
+            $endTime = '00:00:00';
+            break;
+        case 'night':
+            $startTime = '22:00:00';
+            $endTime = '08:00:00';
+            break;
+        default:
+            die("Ca làm không hợp lệ!");
     }
 
-    if ($allSuccess) {
-        $statusMessage = 'Xếp ca đồng loạt trong tháng thành công!';
+    if ($shiftType === 'singleDayShift') {
+        // Xếp ca theo ngày
+        if (!isset($_POST['shiftDate']) || empty($_POST['shiftDate'])) {
+            die("Ngày làm việc không được để trống!");
+        }
+        $workDate = $_POST['shiftDate'];
+
+        // Kiểm tra xem ca làm việc đã tồn tại cho nhân viên vào ngày cụ thể chưa
+        $checkQuery = "SELECT * FROM schedules WHERE EmployeeID = '$employeeId' AND WorkDate = '$workDate'";
+        $result = mysql_query($checkQuery, $conn) or die(mysql_error());
+
+        if (mysql_num_rows($result) > 0) {
+            // Nếu ca làm việc đã tồn tại, cập nhật thời gian bắt đầu và kết thúc
+            $updateQuery = "UPDATE schedules 
+                            SET StartTime = '$startTime', EndTime = '$endTime' 
+                            WHERE EmployeeID = '$employeeId' AND WorkDate = '$workDate'";
+            mysql_query($updateQuery, $conn) or die(mysql_error());
+            echo "Cập nhật ca làm thành công cho ngày $workDate.";
+        } else {
+            // Nếu ca làm việc chưa tồn tại, thêm mới
+            $query = "INSERT INTO schedules (EmployeeID, WorkDate, StartTime, EndTime) 
+                    VALUES ('$employeeId', '$workDate', '$startTime', '$endTime')";
+            mysql_query($query, $conn) or die(mysql_error());
+            echo "Xếp ca thành công cho ngày $workDate.";
+        }
+    }elseif ($shiftType === 'bulkShift') {
+        // Xếp ca theo tháng
+        if (!isset($_POST['shiftMonth']) || empty($_POST['shiftMonth'])) {
+            die("Tháng làm việc không được để trống!");
+        }
+        $month = $_POST['shiftMonth'];
+        $startDate = date("Y-m-01", strtotime($month)); // Ngày đầu tháng
+        $endDate = date("Y-m-t", strtotime($month)); // Ngày cuối tháng
+
+        $currentDate = $startDate;
+
+        while (strtotime($currentDate) <= strtotime($endDate)) {
+            echo "<script>alert($endDate)</script>";
+            // Kiểm tra xem ca làm việc đã tồn tại cho nhân viên vào ngày cụ thể chưa
+            $checkQuery = "SELECT * FROM schedules WHERE EmployeeID = '$employeeId' AND WorkDate = '$currentDate'";
+            $result = mysql_query($checkQuery, $conn) or die(mysql_error());
+
+            if (mysql_num_rows($result) > 0) {
+                // Nếu ca làm việc đã tồn tại, cập nhật thời gian bắt đầu và kết thúc
+                $updateQuery = "UPDATE schedules 
+                                SET StartTime = '$startTime', EndTime = '$endTime' 
+                                WHERE EmployeeID = '$employeeId' AND WorkDate = '$currentDate'";
+                mysql_query($updateQuery, $conn) or die(mysql_error());
+            } else {
+                // Nếu ca làm việc chưa tồn tại, thêm mới
+                $insertQuery = "INSERT INTO schedules (EmployeeID, WorkDate, StartTime, EndTime) 
+                                VALUES ('$employeeId', '$currentDate', '$startTime', '$endTime')";
+                mysql_query($insertQuery, $conn) or die(mysql_error());
+            }
+
+            // Chuyển sang ngày tiếp theo
+            $currentDate = date("Y-m-d", strtotime($currentDate . ' +1 day'));
+        }
+        echo "Xếp ca thành công cho tháng $month.";
+
     } else {
-        $statusMessage = 'Có lỗi xảy ra khi xếp ca theo tháng: ' . $conn->error;
+        die("Kiểu xếp ca không hợp lệ!");
     }
 }
-
-$conn->close();
-
-// Gửi thông báo trở lại trang quản lý (admin.php)
-header('Content-Type: text/html; charset=utf-8');
-echo "<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '../admin.php';
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'status';
-            input.value = \"$statusMessage\";
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        });
-      </script>";
-exit;
 ?>

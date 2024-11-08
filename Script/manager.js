@@ -26,7 +26,7 @@ function saveCurrentSection(sectionId) {
 
 // Chỉnh form để lưu section trước khi submit
 document.querySelector("form").addEventListener("submit", function() {
-    saveCurrentSection("attendanceApproval");
+    saveCurrentSection("shiftScheduling");
 });
 
 
@@ -106,12 +106,12 @@ $(document).ready(function() {
     });
 });
 
-// submit xếp ca 
 $(document).ready(function() {
     // Mặc định chọn "Xếp Ca Theo Ngày"
     $('#singleDayShift').addClass('active');
     $('#shiftDateWrapper').show();
     $('#shiftMonthWrapper').hide();
+    $('#shiftType').val('singleDayShift'); // Giá trị mặc định
 
     // Khi người dùng nhấn vào nút "Xếp Ca Theo Ngày"
     $('#singleDayShift').click(function() {
@@ -119,6 +119,7 @@ $(document).ready(function() {
         $('#bulkShift').removeClass('active');
         $('#shiftDateWrapper').show();
         $('#shiftMonthWrapper').hide();
+        $('#shiftType').val('singleDayShift'); // Cập nhật giá trị hidden
     });
 
     // Khi người dùng nhấn vào nút "Xếp Ca Đồng Loạt Trong Tháng"
@@ -127,47 +128,36 @@ $(document).ready(function() {
         $('#singleDayShift').removeClass('active');
         $('#shiftDateWrapper').hide();
         $('#shiftMonthWrapper').show();
+        $('#shiftType').val('bulkShift'); // Cập nhật giá trị hidden
     });
 
     // Khi form được submit
     $('form').submit(function(event) {
-        event.preventDefault(); // Ngăn chặn form submit mặc định
+        event.preventDefault(); // Ngăn chặn submit mặc định
 
         // Lấy dữ liệu từ form
         var employeeId = $('#employeeIdShift').val();
         var shiftTime = $('#shiftTime').val();
         var shiftDate = $('#shiftDate').val(); // Ngày
         var shiftMonth = $('#shiftMonth').val(); // Tháng
-
-        // Kiểm tra kiểu xếp ca
-        var shiftOption = $('button.active').data('shift');
+        var shiftType = $('#shiftType').val(); // Kiểu xếp ca
 
         // Chuẩn bị dữ liệu gửi đến server
         var data = {
             employeeId: employeeId,
             shiftTime: shiftTime,
-            shiftOption: shiftOption,
+            shiftType: shiftType,
             shiftDate: shiftDate,
             shiftMonth: shiftMonth
         };
 
-        // Xử lý xếp ca theo ngày
-        if (shiftOption === 'singleDay' && shiftDate) {
-            data.workDate = shiftDate; // Dữ liệu ngày
-        }
-
-        // Xử lý xếp ca theo tháng
-        if (shiftOption === 'bulk' && shiftMonth) {
-            data.workMonth = shiftMonth; // Dữ liệu tháng
-        }
-
         // Gửi yêu cầu AJAX đến server
         $.ajax({
-            url: 'your_backend_php_file.php', // Đổi thành đường dẫn đúng tới file PHP của bạn
+            url: '../KLTN_20029511/PHP/shiftScheduling.php',
             method: 'POST',
             data: data,
             success: function(response) {
-                alert('Xếp ca thành công');
+                alert(response); // Hiển thị kết quả từ server
             },
             error: function(xhr, status, error) {
                 alert("Lỗi khi xếp ca: " + error);
@@ -175,4 +165,3 @@ $(document).ready(function() {
         });
     });
 });
-
