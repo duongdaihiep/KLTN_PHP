@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $currentDate = $startDate;
 
         while (strtotime($currentDate) <= strtotime($endDate)) {
-            echo "<script>alert($endDate)</script>";
+            // echo "<script>alert($endDate)</script>";
             // Kiểm tra xem ca làm việc đã tồn tại cho nhân viên vào ngày cụ thể chưa
             $checkQuery = "SELECT * FROM schedules WHERE EmployeeID = '$employeeId' AND WorkDate = '$currentDate'";
             $result = mysql_query($checkQuery, $conn) or die(mysql_error());

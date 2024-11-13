@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Nhập</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./CSS/dangNhap.css"> <!-- Liên kết đến file CSS -->
+    <link rel="stylesheet" href="./CSS/dangNhap.css">
 </head>
 <body>
 
 <div class="login-container">
     <h1>Attendance</h1>
     <h3 class="text-center">Đăng Nhập</h3>
-    <form action="./PHP/login_process.php" method="post">
+    <form id="loginForm">
         <div class="mb-4">
             <label for="username" class="form-label">Email hoặc Số Điện Thoại</label>
             <input type="text" class="form-control" id="username" name="username" placeholder="Nhập email hoặc số điện thoại" required>
@@ -24,13 +24,39 @@
         <button type="submit" class="btn login-btn w-100">Đăng Nhập</button>
     </form>
 </div>
-<?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
-        echo "<script>alert(" . json_encode($_POST['status']) . ");</script>";
-        location.reload();
-    }
-?>
+
+<!-- Khu vực hiển thị thông báo lỗi -->
+<!-- <div id="errorMessage" class="text-danger mt-3 text-center"></div> -->
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $("#loginForm").submit(function(e) {
+            e.preventDefault(); // Ngăn chặn form submit mặc định
+
+            $.ajax({
+                url: './PHP/login_process.php',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Chuyển hướng đến URL được trả về
+                        window.location.href = response.redirect;
+                    } else {
+                        // Sử dụng alert để hiển thị thông báo lỗi
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+        });
+    });
+</script>
+
 </body>
 </html>

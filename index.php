@@ -173,7 +173,7 @@ if ($row = mysql_fetch_assoc($result)) {
                 $currentYear = date('Y');  // Lấy năm
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
                 $totalSalary = ($salaryData['BasicSalary'] /$daysInMonth) * $workingDays;
-                echo $totalSalary;
+                // echo $totalSalary;
                 
 
                 // Nếu không tìm thấy dữ liệu

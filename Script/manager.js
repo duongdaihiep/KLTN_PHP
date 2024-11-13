@@ -25,9 +25,9 @@ function saveCurrentSection(sectionId) {
 }
 
 // Chỉnh form để lưu section trước khi submit
-document.querySelector("form").addEventListener("submit", function() {
-    saveCurrentSection("shiftScheduling");
-});
+// document.querySelector("form").addEventListener("submit", function() {
+//     saveCurrentSection("shiftScheduling");
+// });
 
 
 $(document).ready(function() {
@@ -153,7 +153,7 @@ $(document).ready(function() {
 
         // Gửi yêu cầu AJAX đến server
         $.ajax({
-            url: '../KLTN_20029511/PHP/shiftScheduling.php',
+            url: './PHP/shiftScheduling.php',
             method: 'POST',
             data: data,
             success: function(response) {

@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
             <div class="mb-3">
                 <h2 class="mb-3 text-center">Xếp Ca</h2>
             </div>
-            <form id="shiftForm" method="POST" action="../KLTN_20029511/PHP/shiftScheduling.php">
+            <form id="shiftForm" method="POST" action="./PHP/shiftScheduling.php">
                 <div class="mb-3">
                     <label for="shiftOption" class="form-label">Chọn kiểu xếp ca</label>
                     <div class="btn-group" role="group" aria-label="Shift Options">
@@ -121,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
 
 
                 <button type="submit" class="btn btn-primary">Xếp Ca</button>
+                <div class="mt-100"></div>
             </form>
         </section>
 

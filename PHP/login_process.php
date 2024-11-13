@@ -1,73 +1,47 @@
 <?php
-header('Content-Type: text/html; charset=utf-8');
+header('Content-Type: application/json; charset=utf-8');
 session_start();
 include 'db.php'; // Tệp kết nối đến cơ sở dữ liệu
 
-// Nhận dữ liệu từ form đăng nhập
 $username = $_POST['username'];
 $password = $_POST['password'];
-
-// Mã hóa mật khẩu bằng MD5 (phải khớp với cách mã hóa trong CSDL)
 $hashedPassword = md5($password);
 
-// Truy vấn tìm người dùng theo username (email hoặc số điện thoại)
-// Dùng mysql_real_escape_string để tránh SQL Injection
 $sql = "SELECT * FROM User WHERE Username = '" . mysql_real_escape_string($username) . "'";
 $result = mysql_query($sql, $conn);
 
-// Kiểm tra nếu tìm thấy tài khoản
 if ($result && mysql_num_rows($result) > 0) {
     $row = mysql_fetch_assoc($result);
-
-    // Lấy mật khẩu đã mã hóa từ CSDL
     $storedPasswordHash = $row['PasswordHash'];
 
-    // So sánh mật khẩu nhập và mật khẩu đã mã hóa
     if ($hashedPassword == $storedPasswordHash) {
-        // Mật khẩu đúng, đăng nhập thành công
         $_SESSION['username'] = $username;
-        $_SESSION['role'] = $row['Role']; // Lưu role vào session
+        $_SESSION['role'] = $row['Role'];
+
         if ($row['Status'] == 'Lock') {
             session_destroy();
-            // echo "<script>alert('Tài khoản đã bị khóa!')</script>";
-            // header('Location: ../dangNhap.php');
-            echo "<script>
-                alert('Tài khoản đã bị khóa!');
-                setTimeout(function() {
-                    window.location.href = '../dangNhap.php';
-                }, 5000); // Thời gian chờ 5 giây
-            </script>";
-
-
-        }else{
-            // Kiểm tra role của người dùng
-            if ($row['Role'] == 'admin') {
-                // Chuyển hướng đến trang admin.php
-                header('Location: ../admin.php');
-            } elseif ($row['Role'] == 'staff') {
-                // Chuyển hướng đến trang index.php
-                header('Location: ../index.php');
-            } elseif ($row['Role'] == 'manager') {
-                // Chuyển hướng đến trang manager.php
-                header('Location: ../manager.php');
-            } else {
-                // Nếu role không hợp lệ, có thể điều hướng về trang đăng nhập
-                header('Location: ../dangNhap.php');
+            echo json_encode(array('status' => 'error', 'message' => 'Tài khoản đã bị khóa!'));
+        } else {
+            switch ($row['Role']) {
+                case 'admin':
+                    echo json_encode(array('status' => 'success', 'redirect' => './admin.php'));
+                    break;
+                case 'staff':
+                    echo json_encode(array('status' => 'success', 'redirect' => './index.php'));
+                    break;
+                case 'manager':
+                    echo json_encode(array('status' => 'success', 'redirect' => './manager.php'));
+                    break;
+                default:
+                    echo json_encode(array('status' => 'error', 'message' => 'Tài khoản không hợp lệ: Role!'));
+                    break;
             }
-            exit();
-
         }
-        
     } else {
-        // Mật khẩu sai, quay lại trang đăng nhập
-        echo "<script>alert('Mật khẩu không chính xác!')</script>";
-        header('Location: ../dangNhap.php');
-        exit();
+        echo json_encode(array('status' => 'error', 'message' => 'Mật khẩu không chính xác!'));
     }
-    
 } else {
-    // Không tìm thấy người dùng
-    echo "<script>alert('Tài khoản không tồn tại!')</script>";
+    echo json_encode(array('status' => 'error', 'message' => 'Tài khoản không tồn tại!'));
 }
 
 mysql_close($conn);

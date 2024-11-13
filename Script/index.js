@@ -25,19 +25,19 @@ function showSection(sectionId) {
 }
 
 // Khi trang được tải lại, hiển thị phần đã lưu
-document.addEventListener('DOMContentLoaded', () => {
-    const savedSection = localStorage.getItem('currentSection');
-    if (savedSection) {
-        showSection(savedSection);
-    } else {
-        showSection('shiftScheduling'); // Section mặc định
-    }
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     const savedSection = localStorage.getItem('currentSection');
+//     if (savedSection) {
+//         showSection(savedSection);
+//     } else {
+//         showSection('shiftScheduling'); // Section mặc định
+//     }
+// });
 
 
 // Bắt đầu hiển thị phần "home" khi trang được tải
 document.addEventListener('DOMContentLoaded', () => {
-    showSection('shiftScheduling'); // Mặc định hiển thị phần trang chủ
+    showSection('home'); // Mặc định hiển thị phần trang chủ
 });
 
 // Hàm truy cập camera (ưu tiên camera trước)
