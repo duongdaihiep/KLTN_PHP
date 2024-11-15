@@ -126,7 +126,11 @@ if ($row = mysql_fetch_assoc($result)) {
                 <?php
                 // Truy vấn dữ liệu chấm công dựa trên EmployeeID
                 $attendanceQuery = "SELECT Date, CheckInTime, StatusCheckIn, CheckOutTime, StatusCheckOut 
-                                    FROM attendance WHERE EmployeeID = '$employeeID'";
+                    FROM attendance 
+                    WHERE EmployeeID = '$employeeID' 
+                    AND MONTH(Date) = MONTH(CURRENT_DATE()) 
+                    AND YEAR(Date) = YEAR(CURRENT_DATE())";
+
                 $attendanceResult = mysql_query($attendanceQuery);
                 $workingDays = 0;
                 while ($row = mysql_fetch_assoc($attendanceResult)) { 

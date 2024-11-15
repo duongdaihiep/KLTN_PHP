@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }elseif ($shiftType === 'bulkShift') {
         // Xếp ca theo tháng
         if (!isset($_POST['shiftMonth']) || empty($_POST['shiftMonth'])) {
-            die("Tháng làm việc không được để trống!");
+            // die("Tháng làm việc không được để trống!");
         }
         $month = $_POST['shiftMonth'];
         $startDate = date("Y-m-01", strtotime($month)); // Ngày đầu tháng

@@ -75,12 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
     </nav>
 
     <div class="container mt-5">
-        <!-- Xếp Ca -->
         <section id="shiftScheduling" class="content-section">
             <div class="mb-3">
                 <h2 class="mb-3 text-center">Xếp Ca</h2>
             </div>
-            <form id="shiftForm" method="POST" action="./PHP/shiftScheduling.php">
+            <form id="shiftForm">
                 <div class="mb-3">
                     <label for="shiftOption" class="form-label">Chọn kiểu xếp ca</label>
                     <div class="btn-group" role="group" aria-label="Shift Options">
@@ -119,139 +118,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
                 <!-- Hidden input để lưu kiểu xếp ca -->
                 <input type="hidden" id="shiftType" name="shiftType" value="singleDayShift">
 
-
                 <button type="submit" class="btn btn-primary">Xếp Ca</button>
-                <div class="mt-100"></div>
             </form>
         </section>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const singleDayShiftBtn = document.getElementById('singleDayShift');
-                const bulkShiftBtn = document.getElementById('bulkShift');
-                const shiftDateWrapper = document.getElementById('shiftDateWrapper');
-                const shiftMonthWrapper = document.getElementById('shiftMonthWrapper');
-                const shiftTypeInput = document.getElementById('shiftType');
+        document.addEventListener('DOMContentLoaded', function () {
+            const shiftForm = document.getElementById('shiftForm');
+            shiftForm.addEventListener('submit', function (e) {
+                e.preventDefault();  // Ngừng hành động mặc định của form
+                e.stopPropagation(); // Ngừng sự kiện lan ra ngoài
 
-                singleDayShiftBtn.addEventListener('click', function () {
-                    shiftTypeInput.value = 'singleDay';
-                    shiftDateWrapper.style.display = 'block';
-                    shiftMonthWrapper.style.display = 'none';
-                    singleDayShiftBtn.classList.add('btn-primary');
-                    singleDayShiftBtn.classList.remove('btn-outline-primary');
-                    bulkShiftBtn.classList.remove('btn-primary');
-                    bulkShiftBtn.classList.add('btn-outline-primary');
-                });
+                const formData = new FormData(shiftForm);
 
-                bulkShiftBtn.addEventListener('click', function () {
-                    shiftTypeInput.value = 'bulk';
-                    shiftDateWrapper.style.display = 'none';
-                    shiftMonthWrapper.style.display = 'block';
-                    bulkShiftBtn.classList.add('btn-primary');
-                    bulkShiftBtn.classList.remove('btn-outline-primary');
-                    singleDayShiftBtn.classList.remove('btn-primary');
-                    singleDayShiftBtn.classList.add('btn-outline-primary');
-                });
+                fetch('./PHP/shiftScheduling.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Shift Scheduling Response:', data);
+                })
+                .catch(error => console.error('Error:', error));
             });
+        });
         </script>
 
-        <!-- Duyệt Chấm Công -->
+        <!-- duyệt chấm công -->
         <section id="attendanceApproval" class="content-section d-none">
             <div class="mb-3">
                 <h2 class='mb-3 text-center'>Duyệt Chấm Công</h2>
-
             </div>
-            <!-- Form để tìm kiếm lịch sử chấm công -->
-            <form method="POST" action="">
+            <form id="attendanceForm">
                 <div class="mb-3">
-                    <label for="employeeId" class="form-label">Mã Nhân Viên</label>
-                    <input type="text" id="employeeId" name="employeeId" class="form-control" required>
+                    <label for="employeeIdAttendance" class="form-label">Mã Nhân Viên</label>
+                    <input type="text" id="employeeIdAttendance" name="employeeIdAttendance" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Lịch Sử Chấm Công</button>
+                <button type="submit" class="btn btn-primary" id="attendanceSubmitBtn">Lịch Sử Chấm Công</button>
+
             </form>
 
-            <!-- Bảng hiển thị lịch sử chấm công -->
-            <table class="table mt-4" id="attendanceTable">
-                
-                    <?php
-                    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
-                        $employeeId = $_POST['employeeId'];
-
-                        // Truy vấn lấy lịch sử chấm công của nhân viên
-                        $sql = "SELECT attendanceID, EmployeeID, date, checkintime, checkouttime, 
-                                statuscheckin, statuscheckout 
-                                FROM attendance 
-                                WHERE EmployeeID = '$employeeId'";
-                        include './PHP/db.php';
-                        $result = mysql_query($sql, $conn);
-
-                        echo "<thead>
-                                <tr>
-                                    <th>Attendance ID</th>
-                                    <th>Employee ID</th>
-                                    <th>Ngày</th>
-                                    <th>Giờ Vào</th>
-                                    <th>Trạng Thái Vào</th>
-                                    <th>Giờ Ra</th>
-                                    <th>Trạng Thái Ra</th>
-                                    <th>Chỉnh sửa</th>
-                                </tr>
-                            </thead>
-                            <tbody>";
-
-                        // Kiểm tra và hiển thị dữ liệu
-                        if ($result && mysql_num_rows($result) > 0) {
-                            while ($row = mysql_fetch_assoc($result)) {
-                                echo "<tr data-attendance-id='{$row['attendanceID']}'>
-                                        <td><span class='attendanceID'>{$row['attendanceID']}</span></td>
-                                        <td><span class='employeeID'>{$row['EmployeeID']}</span></td>
-                                        <td><span class='date'>{$row['date']}</span></td>
-                                        <td><span class='checkIn'>{$row['checkintime']}</span></td>
-                                        
-                                        <!-- Dropdown cho trạng thái vào -->
-                                        <td>
-                                            <span class='statusCheckIn'>{$row['statuscheckin']}</span>
-                                            <div class='dropdown d-inline'>
-                                                <button class='btn btn-secondary dropdown-toggle' type='button' id='statusCheckInDropdown' data-bs-toggle='dropdown' aria-expanded='false'>
-                                                    ▼
-                                                </button>
-                                                <ul class='dropdown-menu' aria-labelledby='statusCheckInDropdown'>
-                                                    <li><a class='dropdown-item' href='#' data-value='late'>Late</a></li>
-                                                    <li><a class='dropdown-item' href='#' data-value='approved'>Approved</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        
-                                        <td><span class='checkOut'>{$row['checkouttime']}</span></td>
-                                        
-                                        <!-- Dropdown cho trạng thái ra -->
-                                        <td>
-                                            <span class='statusCheckOut'>{$row['statuscheckout']}</span>
-                                            <div class='dropdown d-inline'>
-                                                <button class='btn btn-secondary dropdown-toggle' type='button' id='statusCheckInDropdown' data-bs-toggle='dropdown' aria-expanded='false'>
-                                                    ▼
-                                                </button>
-                                                <ul class='dropdown-menu' aria-labelledby='statusCheckInDropdown'>
-                                                    <li><a class='dropdown-item' href='#' data-value='soon'>Soon</a></li>
-                                                    <li><a class='dropdown-item' href='#' data-value='approved'>Approved</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        
-                                        <td>
-                                            <button class='btn btn-success saveBtn'>Lưu</button>
-                                        </td>
-                                    </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='8'>Không có dữ liệu cho nhân viên này.</td></tr>";
-                        }
-                        // mysql_close($conn);
-                    }
-                    ?>
-                </tbody>
-            </table>
+            <table class="table mt-4" id="attendanceTable"></table>
         </section>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const attendanceForm = document.getElementById('attendanceForm');
+            
+            // Lắng nghe sự kiện submit trên form attendanceForm
+            attendanceForm.addEventListener('submit', function (e) {
+                e.preventDefault();  // Ngừng hành động mặc định của form submit
+                e.stopPropagation(); // Ngừng sự kiện lan ra ngoài form
+
+                const formData = new FormData(attendanceForm);
+
+                fetch('./PHP/fetch_attendance.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('attendanceTable').innerHTML = data;
+                    console.log('Attendance Response:', data);
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+        </script>
+
+
 
         <!-- Duyệt Nghỉ Phép -->
         <section id="leaveApproval" class="content-section d-none">
