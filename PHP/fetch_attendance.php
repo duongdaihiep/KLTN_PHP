@@ -1,6 +1,9 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
-    $employeeId = $_POST['employeeId'];
+// if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeId']) && !empty($_POST['employeeId'])) {
+//     $employeeId = $_POST['employeeId'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['employeeIdAttendance']) && !empty($_POST['employeeIdAttendance'])) {
+    $employeeId = $_POST['employeeIdAttendance'];
+    
 
     include 'db.php';
 

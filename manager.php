@@ -122,27 +122,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
             </form>
         </section>
 
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const shiftForm = document.getElementById('shiftForm');
-            shiftForm.addEventListener('submit', function (e) {
-                e.preventDefault();  // Ngừng hành động mặc định của form
-                e.stopPropagation(); // Ngừng sự kiện lan ra ngoài
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const shiftForm = document.getElementById('shiftForm');
+                shiftForm.addEventListener('submit', function (e) {
+                    e.preventDefault();  // Ngừng hành động mặc định của form
+                    e.stopPropagation(); // Ngừng sự kiện lan ra ngoài
 
-                const formData = new FormData(shiftForm);
+                    const formData = new FormData(shiftForm);
 
-                fetch('./PHP/shiftScheduling.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log('Shift Scheduling Response:', data);
-                })
-                .catch(error => console.error('Error:', error));
+                    fetch('./PHP/shiftScheduling.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log('Shift Scheduling Response:', data);
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
             });
-        });
-        </script>
+            </script>
 
         <!-- duyệt chấm công -->
         <section id="attendanceApproval" class="content-section d-none">
@@ -245,6 +245,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
                     ?>
                 </tbody>
             </table>
+
+
+
+            <div class="mb-3">
+                <h3 class='mb-3 text-center'>Danh Sách Yêu Cầu Đã Duyệt</h3>
+
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã Yêu Cầu</th>
+                        <th>Mã Nhân Viên</th>
+                        <th>Ngày Bắt Đầu</th>
+                        <th>Ngày Kết Thúc</th>
+                        <th>Lý Do</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $sql = "SELECT * FROM LeaveRequests WHERE `status` = 'approved' ORDER BY LeaveRequestID DESC";
+                    $result = mysql_query($sql, $conn);  // Sử dụng mysql_query()
+                    echo "";
+                    // Kiểm tra nếu có dữ liệu trả về
+                    if (mysql_num_rows($result) > 0) {
+                        while ($row = mysql_fetch_assoc($result)) {
+                            // Hiển thị dữ liệu yêu cầu nghỉ phép
+                            echo "<tr>";
+                            echo "<td>" . $row['LeaveRequestID'] . "</td>";
+                            echo "<td>" . $row['EmployeeID'] . "</td>";
+                            echo "<td>" . $row['StartDate'] . "</td>";
+                            echo "<td>" . $row['EndDate'] . "</td>";
+                            echo "<td>" . $row['Reason'] . "</td>";
+                            echo "<td>" . $row['Status'] . "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='6'>Không có yêu cầu nào.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+            
         </section>
 
         <!-- Duyệt Đăng Ký Tăng Ca -->

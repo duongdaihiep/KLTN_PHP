@@ -84,4 +84,7 @@ footer {
 .mt-100{
     margin: 100px;
 }
+section {
+    margin-bottom: 100px !important;
+}
 

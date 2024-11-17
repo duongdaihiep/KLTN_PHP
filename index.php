@@ -263,6 +263,47 @@ if ($row = mysql_fetch_assoc($result)) {
                 </div>
                 <button type="submit" class="btn btn-success">Gửi Yêu Cầu</button>
             </form>
+
+
+            <div class="mb-3">
+            <h3 class='mb-3 text-center'>Danh Sách Yêu Cầu</h3>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã Yêu Cầu</th>
+                        <th>Mã Nhân Viên</th>
+                        <th>Ngày Bắt Đầu</th>
+                        <th>Ngày Kết Thúc</th>
+                        <th>Lý Do</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $sql = "SELECT * FROM LeaveRequests WHERE `EmployeeID` = $employeeID ORDER BY LeaveRequestID DESC";
+                    $result = mysql_query($sql, $conn);  // Sử dụng mysql_query()
+                    echo "";
+                    // Kiểm tra nếu có dữ liệu trả về
+                    if (mysql_num_rows($result) > 0) {
+                        while ($row = mysql_fetch_assoc($result)) {
+                            // Hiển thị dữ liệu yêu cầu nghỉ phép
+                            echo "<tr>";
+                            echo "<td>" . $row['LeaveRequestID'] . "</td>";
+                            echo "<td>" . $row['EmployeeID'] . "</td>";
+                            echo "<td>" . $row['StartDate'] . "</td>";
+                            echo "<td>" . $row['EndDate'] . "</td>";
+                            echo "<td>" . $row['Reason'] . "</td>";
+                            echo "<td>" . $row['Status'] . "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='6'>Không có yêu cầu nào.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+
         </section>
 
         <script>

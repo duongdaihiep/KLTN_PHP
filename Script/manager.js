@@ -131,37 +131,37 @@ $(document).ready(function() {
         $('#shiftType').val('bulkShift'); // Cập nhật giá trị hidden
     });
 
-    // Khi form được submit
-    $('form').submit(function(event) {
-        event.preventDefault(); // Ngăn chặn submit mặc định
+    // // Khi form được submit
+    // $('form').submit(function(event) {
+    //     event.preventDefault(); // Ngăn chặn submit mặc định
 
-        // Lấy dữ liệu từ form
-        var employeeId = $('#employeeIdShift').val();
-        var shiftTime = $('#shiftTime').val();
-        var shiftDate = $('#shiftDate').val(); // Ngày
-        var shiftMonth = $('#shiftMonth').val(); // Tháng
-        var shiftType = $('#shiftType').val(); // Kiểu xếp ca
+    //     // Lấy dữ liệu từ form
+    //     var employeeId = $('#employeeIdShift').val();
+    //     var shiftTime = $('#shiftTime').val();
+    //     var shiftDate = $('#shiftDate').val(); // Ngày
+    //     var shiftMonth = $('#shiftMonth').val(); // Tháng
+    //     var shiftType = $('#shiftType').val(); // Kiểu xếp ca
 
-        // Chuẩn bị dữ liệu gửi đến server
-        var data = {
-            employeeId: employeeId,
-            shiftTime: shiftTime,
-            shiftType: shiftType,
-            shiftDate: shiftDate,
-            shiftMonth: shiftMonth
-        };
+    //     // Chuẩn bị dữ liệu gửi đến server
+    //     var data = {
+    //         employeeId: employeeId,
+    //         shiftTime: shiftTime,
+    //         shiftType: shiftType,
+    //         shiftDate: shiftDate,
+    //         shiftMonth: shiftMonth
+    //     };
 
-        // Gửi yêu cầu AJAX đến server
-        $.ajax({
-            url: './PHP/shiftScheduling.php',
-            method: 'POST',
-            data: data,
-            success: function(response) {
-                alert(response); // Hiển thị kết quả từ server
-            },
-            error: function(xhr, status, error) {
-                alert("Lỗi khi xếp ca: " + error);
-            }
-        });
-    });
+    //     // Gửi yêu cầu AJAX đến server
+    //     $.ajax({
+    //         url: './PHP/shiftScheduling.php',
+    //         method: 'POST',
+    //         data: data,
+    //         success: function(response) {
+    //             alert(response); // Hiển thị kết quả từ server
+    //         },
+    //         error: function(xhr, status, error) {
+    //             alert("Lỗi khi xếp ca: " + error);
+    //         }
+    //     });
+    // });
 });
