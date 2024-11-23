@@ -24,6 +24,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
     }
 }
 
+if (isset($_SESSION['status'])) {
+    // Lấy thông báo và kiểu thông báo từ session
+    $status = $_SESSION['status'];
+    $status_type = $_SESSION['status_type'];
+    
+    // Hiển thị thông báo bằng alert JavaScript
+    echo "<script>alert('$status');</script>";
+
+    // Xóa thông báo khỏi session sau khi hiển thị
+    unset($_SESSION['status']);
+    unset($_SESSION['status_type']);
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -101,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
 
                 <!-- Nhập mã nhân viên -->
                 <div class="mb-3">
-                    <label for="employeeIdShift" class="form-label">Mã Nhân Viên</label>
-                    <input type="text" id="employeeIdShift" name="employeeIdShift" class="form-control" required>
+                    <label for="employeeId" class="form-label">Mã Nhân Viên</label>
+                    <input type="text" id="employeeIdShift" name="employeeId" class="form-control" required>
                 </div>
 
                 <!-- Nhập ca làm -->
@@ -121,28 +134,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
                 <button type="submit" class="btn btn-primary">Xếp Ca</button>
             </form>
         </section>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.getElementById("shiftForm");
+                const shiftTypeInput = document.getElementById("shiftType");
+                const shiftDateWrapper = document.getElementById("shiftDateWrapper");
+                const shiftMonthWrapper = document.getElementById("shiftMonthWrapper");
 
-            <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const shiftForm = document.getElementById('shiftForm');
-                shiftForm.addEventListener('submit', function (e) {
-                    e.preventDefault();  // Ngừng hành động mặc định của form
-                    e.stopPropagation(); // Ngừng sự kiện lan ra ngoài
+                // Chuyển đổi giữa các kiểu xếp ca
+                document.getElementById("singleDayShift").addEventListener("click", () => {
+                    shiftTypeInput.value = "singleDayShift";
+                    shiftDateWrapper.style.display = "block";
+                    shiftMonthWrapper.style.display = "none";
+                });
 
-                    const formData = new FormData(shiftForm);
+                document.getElementById("bulkShift").addEventListener("click", () => {
+                    shiftTypeInput.value = "bulkShift";
+                    shiftDateWrapper.style.display = "none";
+                    shiftMonthWrapper.style.display = "block";
+                });
+
+                // Xử lý sự kiện submit
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault(); // Ngăn chặn việc reload trang mặc định
+
+                    const formData = new FormData(form);
 
                     fetch('./PHP/shiftScheduling.php', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
                     })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log('Shift Scheduling Response:', data);
-                    })
-                    .catch(error => console.error('Error:', error));
+                        .then((response) => response.json())
+                        .then((data) => {
+                            // Hiển thị kết quả dưới dạng alert
+                            if (data.status === 'success') {
+                                alert("Thành công: " + data.message);
+                            } else if (data.status === 'error') {
+                                alert("Lỗi: " + data.message);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                            alert("Đã xảy ra lỗi khi gửi yêu cầu!");
+                        });
                 });
             });
-            </script>
+        </script>
+
 
         <!-- duyệt chấm công -->
         <section id="attendanceApproval" class="content-section d-none">
@@ -265,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leaveRequestId']) && 
                 </thead>
                 <tbody>
                     <?php
-                    $sql = "SELECT * FROM LeaveRequests WHERE `status` = 'approved' ORDER BY LeaveRequestID DESC";
+                    $sql = "SELECT * FROM LeaveRequests WHERE `status` = 'approved' or `status` = 'Refuse' ORDER BY LeaveRequestID DESC";
                     $result = mysql_query($sql, $conn);  // Sử dụng mysql_query()
                     echo "";
                     // Kiểm tra nếu có dữ liệu trả về

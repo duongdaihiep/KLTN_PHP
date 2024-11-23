@@ -186,10 +186,10 @@ if (isset($_POST['status'])) {
 
         <!-- Đăng Ký Tài Khoản Nhân Viên -->
         <section id="registerEmployee" class="content-section d-none">
-        <div class="mb-3">
-        <h2 class='mb-3 text-center'>Đăng Ký Tài Khoản Nhân Viên</h2>
-        </div>
-        <form method="POST" action="./PHP/registerEmployee.php">
+            <div class="mb-3">
+            <h2 class='mb-3 text-center'>Đăng Ký Tài Khoản Nhân Viên</h2>
+            </div>
+            <form method="POST" action="./PHP/registerEmployee.php">
                 <div class="mb-3">
                     <label for="username" class="form-label">Tên Đăng Nhập</label>
                     <input type="text" id="username" name="username" class="form-control" required>
@@ -255,7 +255,7 @@ if (isset($_POST['status'])) {
 
 
             <!-- Form xóa/khóa tài khoản (ẩn ban đầu) -->
-            <form id="manageAccountForm" action="./PHP/manageEmployee.php" method="POST" class="mb-3">
+            <form id="manageAccountForm"class="mb-3">
                 <div class="mb-3">
                 <input type="hidden" name="employeeId" id="hiddenEmployeeId">
                 <div class="mb-3">
@@ -272,44 +272,72 @@ if (isset($_POST['status'])) {
         </section>
 
         <script>
-        document.getElementById('searchEmployeeButton').addEventListener('click', function() {
-            const employeeId = document.getElementById('employeeIdManage').value;
+            document.getElementById('searchEmployeeButton').addEventListener('click', function() {
+                const employeeId = document.getElementById('employeeIdManage').value;
 
-            if (employeeId) {
-                fetch('./PHP/search.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        'searchEmployee': 'true',
-                        'employeeIdManage': employeeId
+                if (employeeId) {
+                    fetch('./PHP/search.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            'searchEmployee': 'true',
+                            'employeeIdManage': employeeId
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const employeeInfoDiv = document.getElementById('employeeInfo');
-                    const manageAccountForm = document.getElementById('manageAccountForm');
-                    
-                    if (data.status === 'found') {
-                        const { EmployeeID, FullName, Email, Phone, status1 } = data.data;
-                        employeeInfoDiv.innerHTML = `
-                            <p><strong>Mã Nhân Viên:</strong> ${EmployeeID}</p>
-                            <p><strong>Họ Tên:</strong> ${FullName}</p>
-                            <p><strong>Email:</strong> ${Email}</p>
-                            <p><strong>Điện Thoại:</strong> ${Phone}</p>
-                            <p><strong>Trạng thái:</strong> ${status1}</p>
-                        `;
+                    .then(response => response.json())
+                    .then(data => {
+                        const employeeInfoDiv = document.getElementById('employeeInfo');
+                        const manageAccountForm = document.getElementById('manageAccountForm');
                         
-                        // Đặt ID nhân viên ẩn trong form và hiển thị form xóa/khóa tài khoản
-                        document.getElementById('hiddenEmployeeId').value = EmployeeID;
-                        manageAccountForm.classList.remove('d-none');
-                    } else {
-                        employeeInfoDiv.innerHTML = "<p class='text-danger'>Không tìm thấy nhân viên với mã này.</p>";
-                        manageAccountForm.classList.add('d-none'); // Ẩn form nếu không tìm thấy
-                    }
+                        if (data.status === 'found') {
+                            const { EmployeeID, FullName, Email, Phone, status1 } = data.data;
+                            employeeInfoDiv.innerHTML = `
+                                <p><strong>Mã Nhân Viên:</strong> ${EmployeeID}</p>
+                                <p><strong>Họ Tên:</strong> ${FullName}</p>
+                                <p><strong>Email:</strong> ${Email}</p>
+                                <p><strong>Điện Thoại:</strong> ${Phone}</p>
+                                <p><strong>Trạng thái:</strong> ${status1}</p>
+                            `;
+                            
+                            // Đặt ID nhân viên ẩn trong form và hiển thị form xóa/khóa tài khoản
+                            document.getElementById('hiddenEmployeeId').value = EmployeeID;
+                            manageAccountForm.classList.remove('d-none');
+                        } else {
+                            employeeInfoDiv.innerHTML = "<p class='text-danger'>Không tìm thấy nhân viên với mã này.</p>";
+                            manageAccountForm.classList.add('d-none'); // Ẩn form nếu không tìm thấy
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            });
+
+            document.getElementById("manageAccountForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Ngăn không cho form tự động submit
+
+                // Lấy dữ liệu từ form
+                const formData = new FormData(this);
+
+                // Gửi dữ liệu bằng fetch
+                fetch('editEmployees.php', {
+                    method: 'POST',
+                    body: formData
                 })
-                .catch(error => console.error('Error:', error));
-            }
-        });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json(); // Giả sử server trả về JSON
+                })
+                .then(data => {
+                    // Xử lý dữ liệu trả về từ server
+                    alert("Yêu cầu đã được xử lý: " + JSON.stringify(data));
+                })
+                .catch(error => {
+                    // Xử lý lỗi
+                    console.error('Có lỗi xảy ra:', error);
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                });
+            });
         </script>
 
 
