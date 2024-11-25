@@ -25,7 +25,7 @@ $status = '';
 switch ($action) {
     case 'delete':
         // Xóa tài khoản
-        $sql = "DELETE FROM user WHERE EmployeeID = ?";
+        $sql = "DELETE FROM user WHERE EmployeeID = $employeeId";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $employeeId);
         if ($stmt->execute()) {
